@@ -21,7 +21,7 @@ public class CountingParalelo{
     }
 
     public static void main(String[] args){
-        for(int i = 4; i < 8; i++){
+        for(int i = 1; i < 9; i++){
             N = (int) Math.pow(10, i);
             for(int j = 0; j < 10; j+=2) {
                 H = (int) 2 + j;
