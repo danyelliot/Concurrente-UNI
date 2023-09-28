@@ -8,7 +8,7 @@
     "default": {
       "down": "default-round-down",
         "up": "default-round",
-      "font": "default-font",
+      "font": "default-font"
     }
   }
 }
