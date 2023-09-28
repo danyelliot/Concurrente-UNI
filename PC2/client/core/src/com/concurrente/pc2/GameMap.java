@@ -9,7 +9,7 @@ public class GameMap{
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
     private OrthographicCamera camera;
-    GameMap(OrthographicCamera camera){
+    public GameMap(OrthographicCamera camera){
         map = new TmxMapLoader().load("map.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         this.camera = camera;
