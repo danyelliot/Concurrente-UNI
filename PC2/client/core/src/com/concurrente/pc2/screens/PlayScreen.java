@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.concurrente.pc2.Chopper;
 import com.concurrente.pc2.GameMap;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayScreen implements Screen {
@@ -18,6 +20,11 @@ public class PlayScreen implements Screen {
     private AtomicReference<Float> dy = new AtomicReference<>(0f);
     private OrthographicCamera camera;
     private GameMap map;
+    private Socket clientSocket;
+    public PlayScreen(String ip, int port) throws IOException {
+        clientSocket = new Socket(ip, port);
+        clientSocket.setTcpNoDelay(true);
+    }
     @Override
     public void show() {
         batch = new SpriteBatch();
