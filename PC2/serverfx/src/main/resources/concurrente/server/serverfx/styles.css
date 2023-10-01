@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'RetroFont';
-    src: url('upheavtt.ttf');
-}
-
-.label-with-custom-font {
-    -fx-font-family: 'RetroFont';
-    -fx-font-size: 16px;
-}
