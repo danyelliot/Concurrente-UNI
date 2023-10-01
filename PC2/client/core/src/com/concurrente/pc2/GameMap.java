@@ -12,7 +12,6 @@ public class GameMap{
     public GameMap(OrthographicCamera camera){
         map = new TmxMapLoader().load("map.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
-        this.camera = camera;
         renderer.setView(camera);
     }
 

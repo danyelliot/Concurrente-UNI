@@ -15,24 +15,19 @@ public class Chopper {
     private final boolean isDebug;
     private ShapeRenderer shapeRenderer;
 
-    public Chopper(boolean isDebug){
+    public Chopper(int x, int y,boolean isDebug){
         this.isDebug = isDebug;
         Texture texture = new Texture("chopper.png");
         this.sprite = new Sprite(texture);
         this.sprite.setScale(0.1f);
         this.money = 0;
         this.energy = 100;
-        float scale = 1.1f;
+        float scale = .9f;
         sprite.setSize(sprite.getWidth() * scale, sprite.getHeight() * scale);
         sprite.setScale(scale);
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
-        float spriteWidth = sprite.getWidth();
-        float spriteHeight = sprite.getHeight();
-        float spriteX = (screenWidth - spriteWidth) / 2;
-        float spriteY = (screenHeight - spriteHeight) / 2;
-        this.position = new Vector2(spriteX, spriteY);
-        sprite.setPosition(spriteX, spriteY);
+        position = new Vector2(x, y);
+        sprite.setPosition(x, y);
+        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         if (this.isDebug) {
             shapeRenderer = new ShapeRenderer();
         }
@@ -45,6 +40,11 @@ public class Chopper {
     public void move(float dx, float dy) {
         position.x += dx;
         position.y += dy;
+        if(dx < 0){
+            sprite.setRotation(180);
+        }else if(dx > 0){
+            sprite.setRotation(0);
+        }
         sprite.translate(dx, dy);
     }
 

@@ -2,16 +2,38 @@ package com.concurrente.server.server;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
+import java.util.Random;
+import java.util.Vector;
 
 public class ServerController {
     @FXML
     private Label portLabel;
 
     private ServerSocket serverSocket;
+    private Vector<ClientData> clients;
+    private Vector<Vector2> initialPoints;
+    public ServerController() {
+        clients = new Vector<>();
+        initialPoints = new Vector<>();
+        int maxX = 1920;
+        int maxY = 1000;
+
+        for (int x = 0; x <= maxX; x++) {
+            for (int y = 0; y <= maxY; y++) {
+                Vector2 point = new Vector2(x, y);
+                initialPoints.add(point);
+            }
+        }
+
+    }
 
     public void setPort(String port) {
         portLabel.setText("Puerto: " + port);
@@ -42,18 +64,22 @@ public class ServerController {
 
     private void handleClient(Socket clientSocket) {
         try {
-            // Obtén el InputStream para recibir datos del cliente
-            InputStream inputStream = clientSocket.getInputStream();
+            int index = clients.size();
+            System.out.println("Cliente "+ index+ " conectado: " + clientSocket.getInetAddress());
+            clients.add(new ClientData(index));
+            OutputStream outputStream = clientSocket.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeInt(index);
+            Random random = new Random();
+            int r = random.nextInt(initialPoints.size());
+            Vector2 point = initialPoints.get(r);
+            dataOutputStream.writeInt(point.getX());
+            dataOutputStream.writeInt(point.getY());
 
-            // Lee y procesa los datos recibidos (puedes personalizar esta lógica)
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                String data = new String(buffer, 0, bytesRead);
-                System.out.println("Datos recibidos de " + clientSocket.getInetAddress() + ": " + data);
+            while (true){
+
             }
 
-            clientSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,6 +96,4 @@ public class ServerController {
             e.printStackTrace();
         }
     }
-
-
 }

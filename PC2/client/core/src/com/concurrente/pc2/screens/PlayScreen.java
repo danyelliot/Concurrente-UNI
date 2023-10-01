@@ -8,7 +8,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.concurrente.pc2.Chopper;
 import com.concurrente.pc2.GameMap;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,20 +20,23 @@ public class PlayScreen implements Screen {
     float speed = 20.0f;
     private AtomicReference<Float> dx = new AtomicReference<>(0f);
     private AtomicReference<Float> dy = new AtomicReference<>(0f);
-    private OrthographicCamera camera;
     private GameMap map;
     private Socket clientSocket;
+    private OrthographicCamera camera;
     public PlayScreen(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
         clientSocket.setTcpNoDelay(true);
+        InputStream inputStream = clientSocket.getInputStream();
+        DataInputStream dataInputStream = new DataInputStream(inputStream);
+        int index = dataInputStream.readInt();
+        int x = dataInputStream.readInt();
+        int y = dataInputStream.readInt();
+        clientChopper = new Chopper(x,y,true);
     }
     @Override
     public void show() {
         batch = new SpriteBatch();
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800,800);
         loadMap();
-        clientChopper = new Chopper(true);
         Thread inputThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -49,16 +54,18 @@ public class PlayScreen implements Screen {
     }
 
     public void loadMap() {
+        camera = new OrthographicCamera();
+        float viewportWidth = Gdx.graphics.getWidth();
+        float viewportHeight = Gdx.graphics.getHeight();
+        System.out.println("viewportWidth = " + viewportHeight);
+        camera.setToOrtho(false, viewportWidth, viewportHeight);
         map = new GameMap(camera);
     }
     @Override
     public void render(float delta) {
         clientChopper.move(dx.get(), dy.get());
         ScreenUtils.clear(1, 0, 0, 1);
-        batch.setProjectionMatrix(camera.combined);
         map.render();
-        camera.position.set(clientChopper.getX(), clientChopper.getY(), 0);
-        camera.update();
         batch.begin();
         clientChopper.draw(batch);
         batch.end();
@@ -86,6 +93,11 @@ public class PlayScreen implements Screen {
         batch.dispose();
         clientChopper.dispose();
         map.dispose();
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     void handleInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {

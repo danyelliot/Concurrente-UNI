@@ -43,7 +43,7 @@ public class MenuScreen implements Screen {
         title = new Label("Battle Chopper", skin);
         title.setFontScale(2.5f);
         title.setAlignment(Align.center);
-        ipField = new TextField("", skin);
+        ipField = new TextField("192.168.1.22", skin);
         ipField.setMaxLength(15);
         ipField.setAlignment(Align.center);
         ipField.setTextFieldFilter(new TextField.TextFieldFilter() {
@@ -53,7 +53,7 @@ public class MenuScreen implements Screen {
             }
         });
         ipField.setPosition(Gdx.graphics.getWidth() / 2.0f - ipField.getWidth() / 2, Gdx.graphics.getHeight() / 2.0f - ipField.getHeight() / 2 + 50);
-        portField = new TextField("", skin);
+        portField = new TextField("222", skin);
         portField.setMaxLength(5);
         portField.setAlignment(Align.center);
         portField.setTextFieldFilter(new TextField.TextFieldFilter() {
