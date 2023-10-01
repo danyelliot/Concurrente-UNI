@@ -4,11 +4,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.canvas.Canvas?>
+<VBox alignment="TOP_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.concurrente.server.server.ServerController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
+    <Label text="Servidor Iniciado"/>
+    <HBox spacing="190.0" alignment="CENTER">
+        <Label text="IP:" />
 
-    <Label fx:id="portLabel"/>
+        <Label fx:id="portLabel"/>
+    </HBox>
+    <AnchorPane>
+        <Canvas fx:id="gameCanvas" width="100" height="100" />
+    </AnchorPane>
+
 </VBox>

@@ -23,7 +23,7 @@ public class HelloController implements Initializable {
     private TextField portTextField;
     private Stage primaryStage;
     public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage; // Agrega este método para recibir la referencia de primaryStage
+        this.primaryStage = primaryStage;
     }
     @FXML
     protected void onHelloButtonClick() {
@@ -34,16 +34,14 @@ public class HelloController implements Initializable {
             VBox root;
             try {
                 root = fxmlLoader.load();
-                Scene scene = new Scene(root, 400, 200);
-
+                Scene scene = new Scene(root, 350, 310);
                 ServerController controller = fxmlLoader.getController();
                 controller.setPort(port);
-
-                newStage.setTitle("Servidor");
+                newStage.setTitle("Server");
                 newStage.setScene(scene);
+                newStage.setResizable(false);
                 newStage.show();
 
-                // Cierra la ventana principal
                 primaryStage.close();
             } catch (IOException e) {
                 e.printStackTrace();
