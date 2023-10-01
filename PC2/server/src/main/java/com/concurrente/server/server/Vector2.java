@@ -1,20 +1,20 @@
 package com.concurrente.server.server;
 
 public class Vector2 {
-    private int x;
-    private int y;
-    public Vector2(int x, int y){
+    private float x;
+    private float y;
+    public Vector2(float x, float y){
         this.x = x;
         this.y = y;
     }
-    public void set(int x, int y){
+    public void set(float x, float y){
         this.x = x;
         this.y = y;
     }
-    public int getX(){
+    public float getX(){
         return x;
     }
-    public int getY(){
+    public float getY(){
         return y;
     }
 }

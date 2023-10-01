@@ -7,6 +7,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+
 public class Chopper {
     private Sprite sprite;
     private int money;
@@ -14,8 +19,10 @@ public class Chopper {
     private Vector2 position;
     private final boolean isDebug;
     private ShapeRenderer shapeRenderer;
+    OutputStream outputStream;
+    DataOutputStream dataOutputStream;
 
-    public Chopper(int x, int y,boolean isDebug){
+    public Chopper(float x, float y,boolean isDebug){
         this.isDebug = isDebug;
         Texture texture = new Texture("chopper.png");
         this.sprite = new Sprite(texture);
@@ -70,5 +77,12 @@ public class Chopper {
     }
     public float getHeight() {
         return sprite.getHeight();
+    }
+
+    public void sendData(Socket clientSocket) throws IOException {
+        outputStream = clientSocket.getOutputStream();
+        dataOutputStream = new DataOutputStream(outputStream);
+        dataOutputStream.writeFloat(getX());
+        dataOutputStream.writeFloat(getY());
     }
 }

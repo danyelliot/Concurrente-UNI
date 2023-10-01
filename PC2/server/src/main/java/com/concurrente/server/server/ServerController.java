@@ -3,10 +3,7 @@ package com.concurrente.server.server;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -73,13 +70,16 @@ public class ServerController {
             Random random = new Random();
             int r = random.nextInt(initialPoints.size());
             Vector2 point = initialPoints.get(r);
-            dataOutputStream.writeInt(point.getX());
-            dataOutputStream.writeInt(point.getY());
+            dataOutputStream.writeFloat(point.getX());
+            dataOutputStream.writeFloat(point.getY());
+            InputStream inputStream;
+            DataInputStream dataInputStream;
 
             while (true){
-
+                inputStream = clientSocket.getInputStream();
+                dataInputStream = new DataInputStream(inputStream);
+                clients.get(index).update(dataInputStream.readFloat(),dataInputStream.readFloat());
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

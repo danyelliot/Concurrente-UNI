@@ -23,14 +23,19 @@ public class PlayScreen implements Screen {
     private GameMap map;
     private Socket clientSocket;
     private OrthographicCamera camera;
+    InputStream inputStream;
+    DataInputStream dataInputStream;
     public PlayScreen(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
         clientSocket.setTcpNoDelay(true);
-        InputStream inputStream = clientSocket.getInputStream();
-        DataInputStream dataInputStream = new DataInputStream(inputStream);
+        setInitialPosition();
+    }
+    private void setInitialPosition() throws IOException{
+        inputStream = clientSocket.getInputStream();
+        dataInputStream = new DataInputStream(inputStream);
         int index = dataInputStream.readInt();
-        int x = dataInputStream.readInt();
-        int y = dataInputStream.readInt();
+        float x = dataInputStream.readFloat();
+        float y = dataInputStream.readFloat();
         clientChopper = new Chopper(x,y,true);
     }
     @Override
@@ -51,6 +56,20 @@ public class PlayScreen implements Screen {
             }
         });
         inputThread.start();
+        Thread sendData = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        clientChopper.sendData(clientSocket);
+                        Thread.sleep(100);
+                    } catch (InterruptedException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        sendData.start();
     }
 
     public void loadMap() {
