@@ -12,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayScreen implements Screen {
@@ -23,20 +24,36 @@ public class PlayScreen implements Screen {
     private GameMap map;
     private Socket clientSocket;
     private OrthographicCamera camera;
+    private int index;
     InputStream inputStream;
     DataInputStream dataInputStream;
+    private Vector<Chopper> players;
     public PlayScreen(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
         clientSocket.setTcpNoDelay(true);
-        setInitialPosition();
-    }
-    private void setInitialPosition() throws IOException{
         inputStream = clientSocket.getInputStream();
         dataInputStream = new DataInputStream(inputStream);
-        int index = dataInputStream.readInt();
+        index = dataInputStream.readInt();
+        players = new Vector<>();
+        setInitialPosition();
+        for(int i = 0; i < index; i++){
+            loadOtherPlayers();
+        }
+        players.add(clientChopper);
+    }
+    public void loadOtherPlayers() throws IOException{
+        int indexLocal = dataInputStream.readInt();
         float x = dataInputStream.readFloat();
         float y = dataInputStream.readFloat();
-        clientChopper = new Chopper(x,y,true);
+        Chopper chopper = new Chopper(indexLocal,x,y,false);
+        players.add(chopper);
+        System.out.println("Cliente " + indexLocal + " conectado");
+    }
+    private void setInitialPosition() throws IOException{
+        float x = dataInputStream.readFloat();
+        float y = dataInputStream.readFloat();
+        clientChopper = new Chopper(index,x,y,true);
+        System.out.println("Cliente " + index + " conectado");
     }
     @Override
     public void show() {
@@ -70,13 +87,62 @@ public class PlayScreen implements Screen {
             }
         });
         sendData.start();
+        Thread recieveData = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    inputStream = clientSocket.getInputStream();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                dataInputStream = new DataInputStream(inputStream);
+                while (true) {
+                    try {
+                        for (Chopper chopper : players) {
+                            byte[] buffer = new byte[1024];
+                            String data = new String(buffer,0,inputStream.read(buffer));
+                            final String[] dataSplit = data.split(",");
+                            final int sizeTemp = Integer.parseInt(dataSplit[0]);
+                            if (sizeTemp != players.size()) {
+                                Gdx.app.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        for(int i = players.size(); i < sizeTemp; i++){
+                                            Chopper chopper = new Chopper(i,0,0,false);
+                                            players.add(chopper);
+                                            System.out.println("Cliente " + i + " conectado");
+                                        }
+                                    }
+                                });
+                            }
+                            int i = Integer.parseInt(dataSplit[1]);
+                            float x = Float.parseFloat(dataSplit[2]);
+                            float y = Float.parseFloat(dataSplit[3]);
+                            float rotation = Float.parseFloat(dataSplit[4]);
+                            if(i == index){
+                                continue;
+                            }
+                            players.get(i).translate(x,y);
+                            players.get(i).setRotation(rotation);
+                        }
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+        recieveData.start();
+
     }
 
     public void loadMap() {
         camera = new OrthographicCamera();
         float viewportWidth = Gdx.graphics.getWidth();
         float viewportHeight = Gdx.graphics.getHeight();
-        System.out.println("viewportWidth = " + viewportHeight);
         camera.setToOrtho(false, viewportWidth, viewportHeight);
         map = new GameMap(camera);
     }
@@ -86,7 +152,9 @@ public class PlayScreen implements Screen {
         ScreenUtils.clear(1, 0, 0, 1);
         map.render();
         batch.begin();
-        clientChopper.draw(batch);
+        for(Chopper chopper : players){
+            chopper.draw(batch);
+        }
         batch.end();
         clientChopper.debugMode();
     }
@@ -110,7 +178,9 @@ public class PlayScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        clientChopper.dispose();
+        for (Chopper chopper : players) {
+            chopper.dispose();
+        }
         map.dispose();
         try {
             clientSocket.close();

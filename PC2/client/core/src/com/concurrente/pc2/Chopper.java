@@ -1,35 +1,33 @@
 package com.concurrente.pc2;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
-public class Chopper {
+public class Chopper implements Serializable {
     private Sprite sprite;
     private int money;
     private int energy;
+    private int index;
     private Vector2 position;
     private final boolean isDebug;
     private ShapeRenderer shapeRenderer;
-    OutputStream outputStream;
-    DataOutputStream dataOutputStream;
+    private OutputStream out;
 
-    public Chopper(float x, float y,boolean isDebug){
+    public Chopper(int index,float x, float y,boolean isDebug){
+        this.index = index;
         this.isDebug = isDebug;
         Texture texture = new Texture("chopper.png");
         this.sprite = new Sprite(texture);
         this.sprite.setScale(0.1f);
         this.money = 0;
         this.energy = 100;
-        float scale = .9f;
+        float scale = .7f;
         sprite.setSize(sprite.getWidth() * scale, sprite.getHeight() * scale);
         sprite.setScale(scale);
         position = new Vector2(x, y);
@@ -54,6 +52,9 @@ public class Chopper {
         }
         sprite.translate(dx, dy);
     }
+    public void translate(float dx, float dy){
+        sprite.setPosition(dx, dy);
+    }
 
     public void debugMode() {
         if (isDebug) {
@@ -72,17 +73,24 @@ public class Chopper {
     public float getY() {
         return sprite.getY();
     }
-    public float getWidth() {
-        return sprite.getWidth();
-    }
-    public float getHeight() {
-        return sprite.getHeight();
-    }
 
     public void sendData(Socket clientSocket) throws IOException {
-        outputStream = clientSocket.getOutputStream();
-        dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.writeFloat(getX());
-        dataOutputStream.writeFloat(getY());
+        out = clientSocket.getOutputStream();
+        String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation();
+        out.write(data.getBytes());
+        out.flush();
+    }
+
+    public void setMoney(int money){
+        this.money = money;
+    }
+    public void setEnergy(int energy){
+        this.energy = energy;
+    }
+    public int getIndex(){
+        return index;
+    }
+    public void setRotation(float rotation){
+        this.sprite.setRotation(rotation);
     }
 }

@@ -17,7 +17,6 @@ public class BattleChopperGame extends Game {
 	@Override
 	public void dispose () {
 		super.dispose();
-
 	}
 
 }

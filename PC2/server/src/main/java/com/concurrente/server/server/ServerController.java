@@ -6,7 +6,6 @@ import javafx.scene.control.Label;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -16,6 +15,7 @@ public class ServerController {
 
     private ServerSocket serverSocket;
     private Vector<ClientData> clients;
+    private Vector<Socket> sockets;
     private Vector<Vector2> initialPoints;
     public ServerController() {
         clients = new Vector<>();
@@ -46,7 +46,6 @@ public class ServerController {
 
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
-
                     // Inicia un nuevo hilo para manejar la conexión del cliente
                     Thread clientThread = new Thread(() -> handleClient(clientSocket));
                     clientThread.start();
@@ -55,30 +54,35 @@ public class ServerController {
                 e.printStackTrace();
             }
         });
-
         serverThread.start();
+        Thread sendThread = new Thread(this::sendDataToClients);
+        sendThread.start();
     }
 
     private void handleClient(Socket clientSocket) {
         try {
             int index = clients.size();
-            System.out.println("Cliente "+ index+ " conectado: " + clientSocket.getInetAddress());
-            clients.add(new ClientData(index));
+            System.out.println("Cliente "+ index + " conectado: " + clientSocket.getInetAddress());
             OutputStream outputStream = clientSocket.getOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             dataOutputStream.writeInt(index);
-            Random random = new Random();
-            int r = random.nextInt(initialPoints.size());
-            Vector2 point = initialPoints.get(r);
+            Vector2 point = initialPoints.get(new Random().nextInt(initialPoints.size()));
             dataOutputStream.writeFloat(point.getX());
             dataOutputStream.writeFloat(point.getY());
-            InputStream inputStream;
-            DataInputStream dataInputStream;
-
+            for (ClientData client : clients) {
+                dataOutputStream.writeInt(client.getIndex());
+                dataOutputStream.writeFloat(client.getX());
+                dataOutputStream.writeFloat(client.getY());
+            }
+            dataOutputStream.flush();
+            ClientData clientData = new ClientData(index, clientSocket);
+            clients.add(clientData);
+            InputStream inputStream = clientSocket.getInputStream();
             while (true){
-                inputStream = clientSocket.getInputStream();
-                dataInputStream = new DataInputStream(inputStream);
-                clients.get(index).update(dataInputStream.readFloat(),dataInputStream.readFloat());
+                byte[] buffer = new byte[1024];
+                String data = new String(buffer,0,inputStream.read(buffer));
+                String[] dataSplit = data.split(",");
+                clients.get(Integer.parseInt(dataSplit[0])).update(Float.parseFloat(dataSplit[1]),Float.parseFloat(dataSplit[2]),Float.parseFloat(dataSplit[3]));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,6 +98,31 @@ public class ServerController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void sendDataToClients() {
+        OutputStream outputStream;
+        DataOutputStream dataOutputStream;
+        while (true) {
+            try {
+                Thread.sleep(100);
+                for (ClientData client : clients) {
+                    if (!client.isActive()) {
+                        continue;
+                    }
+                    outputStream = client.getSocket().getOutputStream();
+                    for (ClientData clientData : clients) {
+                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation();
+                        outputStream.write(data.getBytes());
+                    }
+                    outputStream.flush();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
