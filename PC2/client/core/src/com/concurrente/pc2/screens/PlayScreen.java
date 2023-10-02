@@ -149,7 +149,7 @@ public class PlayScreen implements Screen {
     @Override
     public void render(float delta) {
         clientChopper.move(dx.get(), dy.get());
-        ScreenUtils.clear(1, 0, 0, 1);
+        ScreenUtils.clear(55/255.0f, 102/255.0f, 108/255.0f, 1);
         map.render();
         batch.begin();
         for(Chopper chopper : players){
