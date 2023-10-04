@@ -18,8 +18,10 @@ public class Chopper implements Serializable {
     private final boolean isDebug;
     private ShapeRenderer shapeRenderer;
     private OutputStream out;
+    private boolean bIsActive;
 
     public Chopper(int index,float x, float y,boolean isDebug){
+        this.bIsActive = true;
         this.index = index;
         this.isDebug = isDebug;
         Texture texture = new Texture("chopper.png");
@@ -39,7 +41,13 @@ public class Chopper implements Serializable {
     }
 
     public void draw(SpriteBatch batch) {
+        if (!bIsActive){
+            return;
+        }
         sprite.draw(batch);
+    }
+    public void setActive(boolean bIsActive){
+        this.bIsActive = bIsActive;
     }
 
     public void move(float dx, float dy) {
@@ -77,6 +85,14 @@ public class Chopper implements Serializable {
     public void sendData(Socket clientSocket) throws IOException {
         out = clientSocket.getOutputStream();
         String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation();
+        out.write("update".getBytes());
+        out.write(data.getBytes());
+        out.flush();
+    }
+    public void sendDisconnect(Socket clientSocket) throws IOException {
+        out = clientSocket.getOutputStream();
+        String data = getIndex() + "";
+        out.write("disconnect".getBytes());
         out.write(data.getBytes());
         out.flush();
     }

@@ -28,6 +28,7 @@ public class PlayScreen implements Screen {
     InputStream inputStream;
     DataInputStream dataInputStream;
     private Vector<Chopper> players;
+    private String event;
     public PlayScreen(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
         clientSocket.setTcpNoDelay(true);
@@ -120,11 +121,13 @@ public class PlayScreen implements Screen {
                             float x = Float.parseFloat(dataSplit[2]);
                             float y = Float.parseFloat(dataSplit[3]);
                             float rotation = Float.parseFloat(dataSplit[4]);
+                            boolean bIsActive = Boolean.parseBoolean(dataSplit[5]);
                             if(i == index){
                                 continue;
                             }
                             players.get(i).translate(x,y);
                             players.get(i).setRotation(rotation);
+                            players.get(i).setActive(bIsActive);
                         }
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -183,7 +186,9 @@ public class PlayScreen implements Screen {
         }
         map.dispose();
         try {
+            clientChopper.sendDisconnect(clientSocket);
             clientSocket.close();
+            clientChopper.dispose();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

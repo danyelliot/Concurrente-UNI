@@ -7,7 +7,7 @@ public class BattleChopperGame extends Game {
 
 	@Override
 	public void create () {
-		setScreen(new MenuScreen());
+		setScreen(new MenuScreen(this));
 	}
 	@Override
 	public void render () {
@@ -17,6 +17,7 @@ public class BattleChopperGame extends Game {
 	@Override
 	public void dispose () {
 		super.dispose();
+		getScreen().dispose();
 	}
 
 }

@@ -17,6 +17,7 @@ public class ServerController {
     private Vector<ClientData> clients;
     private Vector<Socket> sockets;
     private Vector<Vector2> initialPoints;
+    private String event;
     public ServerController() {
         clients = new Vector<>();
         initialPoints = new Vector<>();
@@ -81,8 +82,19 @@ public class ServerController {
             while (true){
                 byte[] buffer = new byte[1024];
                 String data = new String(buffer,0,inputStream.read(buffer));
-                String[] dataSplit = data.split(",");
-                clients.get(Integer.parseInt(dataSplit[0])).update(Float.parseFloat(dataSplit[1]),Float.parseFloat(dataSplit[2]),Float.parseFloat(dataSplit[3]));
+                if(data.equals("update")){
+                    byte[] buffer2 = new byte[1024];
+                    String data2 = new String(buffer2,0,inputStream.read(buffer2));
+                    String[] dataSplit = data2.split(",");
+                    clients.get(Integer.parseInt(dataSplit[0])).update(Float.parseFloat(dataSplit[1]),Float.parseFloat(dataSplit[2]),Float.parseFloat(dataSplit[3]));
+                }else if (data.equals("disconnect")){
+                    byte[] buffer2 = new byte[1024];
+                    String data2 = new String(buffer2,0,inputStream.read(buffer2));
+                    int indexTemp = Integer.parseInt(data2);
+                    clients.get(indexTemp).setActive(false);
+                    System.out.println("Cliente " + indexTemp + " desconectado");
+                    break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,7 +125,7 @@ public class ServerController {
                     }
                     outputStream = client.getSocket().getOutputStream();
                     for (ClientData clientData : clients) {
-                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation();
+                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation() + "," + clientData.isActive();
                         outputStream.write(data.getBytes());
                     }
                     outputStream.flush();

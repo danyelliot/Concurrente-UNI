@@ -1,5 +1,6 @@
 package com.concurrente.pc2.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -23,10 +24,12 @@ public class MenuScreen implements Screen {
     private Label title;
     private TextField ipField;
     private TextField portField;
+    Game game;
 
-    public MenuScreen() {
+    public MenuScreen(Game game) {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         stage = new Stage(new ScreenViewport());
+        this.game = game;
     }
     @Override
     public void show() {
@@ -69,7 +72,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    ((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(new PlayScreen(ipField.getText(), Integer.parseInt(portField.getText())));
+                    game.setScreen(new PlayScreen(ipField.getText(), Integer.parseInt(portField.getText())));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
