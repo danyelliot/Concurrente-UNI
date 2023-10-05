@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.concurrente.pc2.Chopper;
 import com.concurrente.pc2.GameMap;
@@ -36,6 +37,7 @@ public class PlayScreen implements Screen {
         dataInputStream = new DataInputStream(inputStream);
         index = dataInputStream.readInt();
         players = new Vector<>();
+        loadMap();
         setInitialPosition();
         for(int i = 0; i < index; i++){
             loadOtherPlayers();
@@ -46,20 +48,19 @@ public class PlayScreen implements Screen {
         int indexLocal = dataInputStream.readInt();
         float x = dataInputStream.readFloat();
         float y = dataInputStream.readFloat();
-        Chopper chopper = new Chopper(indexLocal,x,y,false);
+        Chopper chopper = new Chopper(indexLocal,x,y,false,map.getWorld());
         players.add(chopper);
         System.out.println("Cliente " + indexLocal + " conectado");
     }
     private void setInitialPosition() throws IOException{
         float x = dataInputStream.readFloat();
         float y = dataInputStream.readFloat();
-        clientChopper = new Chopper(index,x,y,true);
+        clientChopper = new Chopper(index,x,y,true,map.getWorld());
         System.out.println("Cliente " + index + " conectado");
     }
     @Override
     public void show() {
         batch = new SpriteBatch();
-        loadMap();
         Thread inputThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -110,7 +111,7 @@ public class PlayScreen implements Screen {
                                     public void run() {
 
                                         for(int i = players.size(); i < sizeTemp; i++){
-                                            Chopper chopper = new Chopper(i,0,0,false);
+                                            Chopper chopper = new Chopper(i,0,0,false, map.getWorld());
                                             players.add(chopper);
                                             System.out.println("Cliente " + i + " conectado");
                                         }
@@ -147,7 +148,7 @@ public class PlayScreen implements Screen {
         float viewportWidth = Gdx.graphics.getWidth();
         float viewportHeight = Gdx.graphics.getHeight();
         camera.setToOrtho(false, viewportWidth, viewportHeight);
-        map = new GameMap(camera);
+        map = new GameMap(camera, true);
     }
     @Override
     public void render(float delta) {

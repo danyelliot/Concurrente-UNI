@@ -4,7 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Timer;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,8 +22,11 @@ public class Chopper implements Serializable {
     private ShapeRenderer shapeRenderer;
     private OutputStream out;
     private boolean bIsActive;
+    private Body naveBody;
+    private boolean bCanMove = true;
+    private Vector2 lastPosition;
 
-    public Chopper(int index,float x, float y,boolean isDebug){
+    public Chopper(int index,float x, float y,boolean isDebug, World world){
         this.bIsActive = true;
         this.index = index;
         this.isDebug = isDebug;
@@ -38,19 +44,51 @@ public class Chopper implements Serializable {
         if (this.isDebug) {
             shapeRenderer = new ShapeRenderer();
         }
-    }
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(sprite.getWidth() / 3, sprite.getHeight() / 4);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(x, y);
+        naveBody = world.createBody(bodyDef);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.4f;
+        naveBody.createFixture(fixtureDef);
+        naveBody.setUserData(this);
 
+
+        shape.dispose();
+
+        Timer.schedule(savePositionTask, 0.02f, 0.02f);
+    }
+    Timer.Task savePositionTask = new Timer.Task() {
+        @Override
+        public void run() {
+            lastPosition = new Vector2(sprite.getX(), sprite.getY());
+        }
+    };
     public void draw(SpriteBatch batch) {
         if (!bIsActive){
             return;
         }
         sprite.draw(batch);
+        //set a timer for 0.02 seconds for save the last position
+
     }
     public void setActive(boolean bIsActive){
         this.bIsActive = bIsActive;
     }
 
+    public void setCanMove(boolean bCanMove){
+        this.bCanMove = bCanMove;
+    }
+
+
     public void move(float dx, float dy) {
+        if (!bCanMove){
+            return;
+        }
         position.x += dx;
         position.y += dy;
         if(dx < 0){
@@ -59,6 +97,11 @@ public class Chopper implements Serializable {
             sprite.setRotation(0);
         }
         sprite.translate(dx, dy);
+        naveBody.setTransform(sprite.getX() + sprite.getWidth()/2 ,sprite.getY() + sprite.getHeight()/2,0);
+
+    }
+    public void moveBack(){
+        sprite.setPosition(lastPosition.x, lastPosition.y);
     }
     public void translate(float dx, float dy){
         sprite.setPosition(dx, dy);
@@ -67,7 +110,7 @@ public class Chopper implements Serializable {
     public void debugMode() {
         if (isDebug) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.rect(sprite.getBoundingRectangle().x, sprite.getBoundingRectangle().y, sprite.getBoundingRectangle().width, sprite.getBoundingRectangle().height);
+            shapeRenderer.rect(sprite.getBoundingRectangle().x, sprite.getBoundingRectangle().y+10, sprite.getBoundingRectangle().width, sprite.getBoundingRectangle().height-20);
             shapeRenderer.end();
         }
     }
