@@ -18,7 +18,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-public class HelloController implements Initializable {
+public class MenuController implements Initializable {
     @FXML
     private Label welcomeText;
     @FXML
@@ -32,7 +32,7 @@ public class HelloController implements Initializable {
         String port = portTextField.getText();
         if (!port.isEmpty()) {
             Stage newStage = new Stage();
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("server-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(MainGameApplication.class.getResource("server-view.fxml"));
             VBox root;
             try {
                 root = fxmlLoader.load();
