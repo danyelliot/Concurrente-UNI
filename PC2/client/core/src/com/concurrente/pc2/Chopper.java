@@ -4,10 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Timer;
 
 import java.io.*;
 import java.net.Socket;
@@ -25,7 +23,6 @@ public class Chopper implements Serializable {
     private Body naveBody;
     private boolean bCanMove = true;
     private Vector2 lastPosition;
-
     public Chopper(int index,float x, float y,boolean isDebug, World world){
         this.bIsActive = true;
         this.index = index;
@@ -40,6 +37,7 @@ public class Chopper implements Serializable {
         sprite.setScale(scale);
         position = new Vector2(x, y);
         sprite.setPosition(x, y);
+        lastPosition = new Vector2(x, y);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         if (this.isDebug) {
             shapeRenderer = new ShapeRenderer();
@@ -47,64 +45,57 @@ public class Chopper implements Serializable {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(sprite.getWidth() / 3, sprite.getHeight() / 4);
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(x, y);
+        bodyDef.fixedRotation = true;
         naveBody = world.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.4f;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 1.0f;
+        fixtureDef.restitution = 1.0f;
         naveBody.createFixture(fixtureDef);
         naveBody.setUserData(this);
 
-
         shape.dispose();
-
-        Timer.schedule(savePositionTask, 0.02f, 0.02f);
     }
-    Timer.Task savePositionTask = new Timer.Task() {
-        @Override
-        public void run() {
-            lastPosition = new Vector2(sprite.getX(), sprite.getY());
-        }
-    };
+    public void saveLastPosition(){
+        lastPosition = new Vector2(sprite.getX(), sprite.getY());
+    }
+    public void changeToLastPosition(){
+        sprite.setPosition(lastPosition.x, lastPosition.y);
+    }
     public void draw(SpriteBatch batch) {
         if (!bIsActive){
             return;
         }
         sprite.draw(batch);
-        //set a timer for 0.02 seconds for save the last position
-
+        sprite.setPosition(naveBody.getPosition().x - sprite.getWidth()/2, naveBody.getPosition().y - sprite.getHeight()/2);
     }
     public void setActive(boolean bIsActive){
         this.bIsActive = bIsActive;
     }
-
-    public void setCanMove(boolean bCanMove){
-        this.bCanMove = bCanMove;
-    }
-
-
-    public void move(float dx, float dy) {
+    public void forceMove(float desiredVelX, float desiredVelY){
         if (!bCanMove){
             return;
         }
-        position.x += dx;
-        position.y += dy;
-        if(dx < 0){
+        Vector2 vel = naveBody.getLinearVelocity();
+        float velChangeX = desiredVelX - vel.x;
+        float velChangeY = desiredVelY - vel.y;
+        float impulseX = naveBody.getMass() * velChangeX;
+        float impulseY = naveBody.getMass() * velChangeY;
+        if(desiredVelX < 0){
             sprite.setRotation(180);
-        }else if(dx > 0){
+        }else if (desiredVelX > 0){
             sprite.setRotation(0);
         }
-        sprite.translate(dx, dy);
-        naveBody.setTransform(sprite.getX() + sprite.getWidth()/2 ,sprite.getY() + sprite.getHeight()/2,0);
-
+        naveBody.applyLinearImpulse(impulseX, impulseY, naveBody.getWorldCenter().x, naveBody.getWorldCenter().y, true);
     }
-    public void moveBack(){
-        sprite.setPosition(lastPosition.x, lastPosition.y);
+    public void stopMove(){
+        naveBody.setLinearVelocity(0,0);
     }
     public void translate(float dx, float dy){
-        sprite.setPosition(dx, dy);
+        naveBody.setTransform(naveBody.getPosition().x + dx, naveBody.getPosition().y + dy, 0);
     }
 
     public void debugMode() {

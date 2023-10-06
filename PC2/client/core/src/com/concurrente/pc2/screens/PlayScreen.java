@@ -19,9 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PlayScreen implements Screen {
     SpriteBatch batch;
     Chopper clientChopper;
-    float speed = 20.0f;
-    private AtomicReference<Float> dx = new AtomicReference<>(0f);
-    private AtomicReference<Float> dy = new AtomicReference<>(0f);
+    float speed = 80.0f;
     private GameMap map;
     private Socket clientSocket;
     private OrthographicCamera camera;
@@ -29,7 +27,6 @@ public class PlayScreen implements Screen {
     InputStream inputStream;
     DataInputStream dataInputStream;
     private Vector<Chopper> players;
-    private String event;
     public PlayScreen(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
         clientSocket.setTcpNoDelay(true);
@@ -152,7 +149,6 @@ public class PlayScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        clientChopper.move(dx.get(), dy.get());
         ScreenUtils.clear(55/255.0f, 102/255.0f, 108/255.0f, 1);
         map.render();
         batch.begin();
@@ -195,19 +191,30 @@ public class PlayScreen implements Screen {
         }
     }
     void handleInput() {
+        boolean bCanMove = false;
+        float dx = 0;
+        float dy = 0;
+
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            dx.set(-speed);
+            dx = -speed;
+            bCanMove = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            dx.set(speed);
+            dx = speed;
+            bCanMove = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            dy.set(speed);
+            dy = speed;
+            bCanMove = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            dy.set(-speed);
+            dy = -speed;
+            bCanMove = true;
         }
-        dx.set(dx.get() * Gdx.graphics.getDeltaTime() * speed);
-        dy.set(dy.get() * Gdx.graphics.getDeltaTime() * speed);
+        if (bCanMove) {
+            clientChopper.forceMove(dx, dy);
+        }else{
+            clientChopper.stopMove();
+        }
     }
 }
