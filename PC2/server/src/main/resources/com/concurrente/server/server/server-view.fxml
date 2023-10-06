@@ -15,9 +15,8 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
     <Label text="Servidor Iniciado"/>
-    <HBox spacing="190.0" alignment="CENTER">
-        <Label text="IP:" />
-
+    <HBox spacing="150.0" alignment="CENTER">
+        <Label text="IP:" fx:id="ipLabel" />
         <Label fx:id="portLabel"/>
     </HBox>
     <AnchorPane>

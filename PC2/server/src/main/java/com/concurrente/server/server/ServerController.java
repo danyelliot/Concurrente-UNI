@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
@@ -26,6 +27,20 @@ public class ServerController {
     private Vector<Socket> sockets;
     private Vector<Vector2> initialPoints;
     private String event;
+    @FXML
+    private Label ipLabel;
+    private boolean isServerRunning = true;
+
+    public void initialize() {
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            String ipAddress = localHost.getHostAddress();
+            ipLabel.setText("IP: " + ipAddress);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public ServerController() {
         clients = new Vector<>();
         initialPoints = new Vector<>();
@@ -53,14 +68,17 @@ public class ServerController {
                 serverSocket = new ServerSocket(port);
                 System.out.println("Servidor iniciado en el puerto " + port + ". Esperando conexiones...");
 
-                while (true) {
+                while (isServerRunning) {
+                    if (!isServerRunning) {
+                        break; //
+                    }
                     Socket clientSocket = serverSocket.accept();
                     // Inicia un nuevo hilo para manejar la conexión del cliente
                     Thread clientThread = new Thread(() -> handleClient(clientSocket));
                     clientThread.start();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+              //  e.printStackTrace();
             }
         });
         serverThread.start();
@@ -79,8 +97,7 @@ public class ServerController {
     private void handleClient(Socket clientSocket) {
         try {
             int index = clients.size();
-            //System.out.println("Cliente "+ index + " conectado: " + clientSocket.getInetAddress());
-            String clientMessage = "Cliente " + index + " se ha conectado IP: " + clientSocket.getInetAddress();
+            String clientMessage = " Cliente " + index + " se ha conectado\t\t   IP: " + clientSocket.getInetAddress().getHostAddress();
             addEventToList(clientMessage);
 
             OutputStream outputStream = clientSocket.getOutputStream();
@@ -111,9 +128,8 @@ public class ServerController {
                     String data2 = new String(buffer2,0,inputStream.read(buffer2));
                     int indexTemp = Integer.parseInt(data2);
                     clients.get(indexTemp).setActive(false);
-                    String disconnectMessage = "Cliente " + indexTemp + " se ha desconectado";
+                    String disconnectMessage = " Cliente " + indexTemp + " se ha desconectado";
                     addEventToList(disconnectMessage);
-                    System.out.println("Cliente " + indexTemp + " desconectado");
                     break;
                 }
             }
@@ -122,27 +138,32 @@ public class ServerController {
         }
     }
 
-    // Método para detener el servidor *en revisión
     @FXML
     public void stopServer() {
+        isServerRunning = false;
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
-                // Cierra el serverSocket
-                serverSocket.close();
-                System.out.println("Servidor detenido.");
-
-                // Cierra los sockets de los clientes
+                // Cierra todos los sockets de los clientes conectados
                 for (ClientData client : clients) {
-                    Socket clientSocket = client.getSocket();
-                    if (clientSocket != null && !clientSocket.isClosed()) {
-                        clientSocket.close();
+                    try {
+                        client.getSocket().close();
+                    } catch (IOException e) {
+
+                        throw new RuntimeException(e);
+
                     }
                 }
+                // Cierra el socket del servidor
+                serverSocket.close();
+                System.out.println("Servidor detenido.");
+                System.exit(0);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
 
 
     private void sendDataToClients() {
@@ -152,6 +173,7 @@ public class ServerController {
             try {
                 Thread.sleep(100);
                 for (ClientData client : clients) {
+
                     if (!client.isActive()) {
                         continue;
                     }

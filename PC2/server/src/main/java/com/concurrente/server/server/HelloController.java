@@ -2,6 +2,7 @@ package com.concurrente.server.server;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -10,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,6 +43,14 @@ public class HelloController implements Initializable {
                 newStage.setScene(scene);
                 newStage.setResizable(false);
                 newStage.show();
+                newStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        System.out.println("Cerrando la ventana...");
+
+                        System.exit(0);
+                    }
+                });
 
                 primaryStage.close();
             } catch (IOException e) {
