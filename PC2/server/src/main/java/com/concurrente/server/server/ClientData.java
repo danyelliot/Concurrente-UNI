@@ -10,18 +10,20 @@ public class ClientData {
     private float y;
     private float rotation;
     private boolean bIsActive;
+    private boolean bCanDraw = true;
     private Socket socket;
     public ClientData(int index, Socket socket){
         this.index = index;
         this.bIsActive = true;
         this.socket = socket;
     }
-    public void update(float x, float y, float rotation, int energy, int money){
+    public void update(float x, float y, float rotation, int energy, int money, boolean bCanDraw){
         this.x = x;
         this.y = y;
         this.rotation = rotation;
         this.energy = energy;
         this.money = money;
+        this.bCanDraw = bCanDraw;
     }
     public void setActive(boolean bIsActive){
         this.bIsActive = bIsActive;
@@ -52,5 +54,8 @@ public class ClientData {
     }
     public float getRotation(){
         return rotation;
+    }
+    public boolean getbCanDraw(){
+        return bCanDraw;
     }
 }

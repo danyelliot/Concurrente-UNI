@@ -49,7 +49,7 @@ public class ServerController {
         clients = new Vector<>();
         initialPoints = new Vector<>();
         int maxX = 1920;
-        int maxY = 880;
+        int maxY = 640;
 
         for (int x = 0; x <= maxX; x++) {
             for (int y = 320; y <= maxY; y++) {
@@ -152,7 +152,8 @@ public class ServerController {
                             Float.parseFloat(dataSplit[2]),
                             Float.parseFloat(dataSplit[3]),
                             Integer.parseInt(dataSplit[4]),
-                            Integer.parseInt(dataSplit[5]));
+                            Integer.parseInt(dataSplit[5]),
+                            Boolean.parseBoolean(dataSplit[6]));
                 }else if (data.equals("disconnect")){
                     byte[] buffer2 = new byte[1024];
                     String data2 = new String(buffer2,0,inputStream.read(buffer2));
@@ -237,7 +238,7 @@ public class ServerController {
                     }
                     outputStream = client.getSocket().getOutputStream();
                     for (ClientData clientData : clients) {
-                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation() + "," + clientData.isActive() + "," + clientData.getEnergy() + "," + clientData.getMoney() + ",";;
+                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation() + "," + clientData.isActive() + "," + clientData.getEnergy() + "," + clientData.getMoney() + "," + clientData.getbCanDraw();
                         outputStream.write(data.getBytes());
                     }
                     outputStream.flush();

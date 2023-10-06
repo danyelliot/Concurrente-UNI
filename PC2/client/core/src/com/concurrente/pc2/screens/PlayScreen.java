@@ -127,6 +127,7 @@ public class PlayScreen implements Screen {
                             boolean bIsActive = Boolean.parseBoolean(dataSplit[5]);
                             int energy = Integer.parseInt(dataSplit[6]);
                             int money = Integer.parseInt(dataSplit[7]);
+                            boolean bCanDraw = Boolean.parseBoolean(dataSplit[8]);
                             if(i == index){
                                 continue;
                             }
@@ -135,6 +136,7 @@ public class PlayScreen implements Screen {
                             players.get(i).setActive(bIsActive);
                             players.get(i).setEnergy(energy);
                             players.get(i).setMoney(money);
+                            players.get(i).setbCanDraw(bCanDraw);
                         }
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -192,9 +194,10 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
+            System.exit(0);
         }
         if(clientChopper.getEnergy() <= 0){
-            Gdx.app.exit();
+            clientChopper.setbCanDraw(false);
         }
         ScreenUtils.clear(55/255.0f, 102/255.0f, 108/255.0f, 1);
         map.render();

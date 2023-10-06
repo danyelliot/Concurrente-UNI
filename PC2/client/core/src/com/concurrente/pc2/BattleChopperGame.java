@@ -18,6 +18,7 @@ public class BattleChopperGame extends Game {
 	public void dispose () {
 		super.dispose();
 		getScreen().dispose();
+		System.exit(0);
 	}
 
 }

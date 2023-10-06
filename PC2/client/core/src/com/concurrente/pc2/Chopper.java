@@ -22,6 +22,7 @@ public class Chopper{
     private boolean bIsActive;
     private Body naveBody;
     private BitmapFont font = new BitmapFont();
+    public boolean bCanDraw = true;
     public Chopper(int index,float x, float y,boolean isDebug, World world){
         this.bIsActive = true;
         this.index = index;
@@ -57,6 +58,9 @@ public class Chopper{
         shape.dispose();
     }
     public void draw(SpriteBatch batch, World world) {
+        if (!bCanDraw){
+            return;
+        }
         if (!bIsActive){
             if (naveBody != null){
                 world.destroyBody(naveBody);
@@ -126,7 +130,7 @@ public class Chopper{
 
     public void sendData(Socket clientSocket) throws IOException {
         out = clientSocket.getOutputStream();
-        String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation() + "," + getEnergy() + "," + getMoney();
+        String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation() + "," + getEnergy() + "," + getMoney() + "," + bCanDraw;
         out.write("update".getBytes());
         out.write(data.getBytes());
         out.flush();
@@ -177,5 +181,8 @@ public class Chopper{
     }
     public void setMoney(int money){
         this.money = money;
+    }
+    public void setbCanDraw(boolean bCanDraw){
+        this.bCanDraw = bCanDraw;
     }
 }
