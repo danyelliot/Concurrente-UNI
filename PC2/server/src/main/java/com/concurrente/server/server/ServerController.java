@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ServerController {
     @FXML
@@ -23,6 +24,7 @@ public class ServerController {
     @FXML
     private Button closeButton;
     private ServerSocket serverSocket;
+    private ServerSocket serverSocketBullets;
     private Vector<ClientData> clients;
     private Vector<Socket> sockets;
     private Vector<Vector2> initialPoints;
@@ -36,6 +38,7 @@ public class ServerController {
             InetAddress localHost = InetAddress.getLocalHost();
             String ipAddress = localHost.getHostAddress();
             ipLabel.setText("IP: " + ipAddress);
+            sockets = new Vector<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,10 +48,10 @@ public class ServerController {
         clients = new Vector<>();
         initialPoints = new Vector<>();
         int maxX = 1920;
-        int maxY = 1000;
+        int maxY = 880;
 
         for (int x = 0; x <= maxX; x++) {
-            for (int y = 0; y <= maxY; y++) {
+            for (int y = 320; y <= maxY; y++) {
                 Vector2 point = new Vector2(x, y);
                 initialPoints.add(point);
             }
@@ -82,6 +85,27 @@ public class ServerController {
             }
         });
         serverThread.start();
+        Thread serverBulletsThread = new Thread(() -> {
+            try {
+                int port = Integer.parseInt(portString) + 1;
+                serverSocketBullets = new ServerSocket(port);
+                System.out.println("Servidor iniciado en el puerto " + port + ". Esperando conexiones...");
+
+                while (isServerRunning) {
+                    if (!isServerRunning) {
+                        break; //
+                    }
+                    Socket bulletsSocket = serverSocketBullets.accept();
+                    sockets.add(bulletsSocket);
+                    // Inicia un nuevo hilo para manejar la conexión del cliente
+                    Thread bulletsThread = new Thread(() -> handleBullets(bulletsSocket));
+                    bulletsThread.start();
+                }
+            } catch (IOException e) {
+                //  e.printStackTrace();
+            }
+        });
+        serverBulletsThread.start();
         Thread sendThread = new Thread(this::sendDataToClients);
         sendThread.start();
     }
@@ -113,6 +137,7 @@ public class ServerController {
             }
             dataOutputStream.flush();
             ClientData clientData = new ClientData(index, clientSocket);
+            clientData.setActive(true);
             clients.add(clientData);
             InputStream inputStream = clientSocket.getInputStream();
             while (true){
@@ -122,7 +147,11 @@ public class ServerController {
                     byte[] buffer2 = new byte[1024];
                     String data2 = new String(buffer2,0,inputStream.read(buffer2));
                     String[] dataSplit = data2.split(",");
-                    clients.get(Integer.parseInt(dataSplit[0])).update(Float.parseFloat(dataSplit[1]),Float.parseFloat(dataSplit[2]),Float.parseFloat(dataSplit[3]));
+                    clients.get(Integer.parseInt(dataSplit[0])).update(Float.parseFloat(dataSplit[1]),
+                            Float.parseFloat(dataSplit[2]),
+                            Float.parseFloat(dataSplit[3]),
+                            Integer.parseInt(dataSplit[4]),
+                            Integer.parseInt(dataSplit[5]));
                 }else if (data.equals("disconnect")){
                     byte[] buffer2 = new byte[1024];
                     String data2 = new String(buffer2,0,inputStream.read(buffer2));
@@ -137,7 +166,32 @@ public class ServerController {
             e.printStackTrace();
         }
     }
-
+    private void handleBullets(Socket bulletsSocket){
+        try{
+            while (true){
+                byte[] buffer = new byte[1024];
+                InputStream inputStream = bulletsSocket.getInputStream();
+                String data = new String(buffer,0,inputStream.read(buffer));
+                String[] dataSplit = data.split(",");
+                int index = Integer.parseInt(dataSplit[0]);
+                float x = Float.parseFloat(dataSplit[1]);
+                float y = Float.parseFloat(dataSplit[2]);
+                float rotation = Float.parseFloat(dataSplit[3]);
+                BulletData bulletData = new BulletData(index,x,y,rotation,bulletsSocket);
+                for (Socket socket : sockets){
+                    OutputStream outputStream = socket.getOutputStream();
+                    String data2 = index + "," + x + "," + y + "," + rotation + ",";
+                    outputStream.write(data2.getBytes());
+                    outputStream.flush();
+                }
+                Thread.sleep(100);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @FXML
     public void stopServer() {
         isServerRunning = false;
@@ -173,13 +227,12 @@ public class ServerController {
             try {
                 Thread.sleep(100);
                 for (ClientData client : clients) {
-
                     if (!client.isActive()) {
                         continue;
                     }
                     outputStream = client.getSocket().getOutputStream();
                     for (ClientData clientData : clients) {
-                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation() + "," + clientData.isActive();
+                        String data = clients.size() + "," + clientData.getIndex() + "," + clientData.getX() + "," + clientData.getY() + "," + clientData.getRotation() + "," + clientData.isActive() + "," + clientData.getEnergy() + "," + clientData.getMoney() + ",";;
                         outputStream.write(data.getBytes());
                     }
                     outputStream.flush();

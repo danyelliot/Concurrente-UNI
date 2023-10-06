@@ -14,8 +14,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class GameMap{
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer renderer;
+    private final TiledMap map;
+    private final OrthogonalTiledMapRenderer renderer;
     Box2DDebugRenderer debugRenderer;
     OrthographicCamera camera;
     World world;
@@ -36,13 +36,15 @@ public class GameMap{
             public void beginContact(Contact contact) {
                 Fixture fixtureA = contact.getFixtureA();
                 Fixture fixtureB = contact.getFixtureB();
-
                 Object userDataA = fixtureA.getBody().getUserData();
                 Object userDataB = fixtureB.getBody().getUserData();
-
-                if (userDataB instanceof Chopper) {
-                    ((Chopper) userDataB).saveLastPosition();
+                if (userDataB instanceof Bullet) {
+                    if (userDataA instanceof Chopper){
+                        ((Chopper) userDataA).makeDamage(10);
+                    }
+                    ((Bullet) userDataB).destroy();
                 }
+
             }
 
             @Override
@@ -50,16 +52,6 @@ public class GameMap{
             }
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-
-                Object userDataA = fixtureA.getBody().getUserData();
-                Object userDataB = fixtureB.getBody().getUserData();
-
-                if (userDataB instanceof Chopper) {
-                    System.out.println("Chocaron");
-                    ((Chopper) userDataB).changeToLastPosition();
-                }
 
             }
             @Override
@@ -78,13 +70,11 @@ public class GameMap{
 
     public void render() {
         renderer.render();
-        world.step(1/60f, 6, 2);
         debugRenderer.render(world, camera.combined);
 
     }
     private void loadCollisions(){
         MapLayer collisionLayer =  map.getLayers().get("collisions");
-        System.out.println(collisionLayer.getObjects().getCount());
         for (MapObject object : collisionLayer.getObjects()) {
             if(object instanceof PolygonMapObject){
                 Polygon polygon = ((PolygonMapObject) object).getPolygon();
@@ -105,6 +95,7 @@ public class GameMap{
 
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
+                fixtureDef.filter.categoryBits = 0x0001;
                 body.createFixture(fixtureDef);
 
                 body.setUserData(object);
@@ -125,6 +116,7 @@ public class GameMap{
 
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
+                fixtureDef.filter.categoryBits = 0x0001;
 
                 body.createFixture(fixtureDef);
                 body.setUserData(object);

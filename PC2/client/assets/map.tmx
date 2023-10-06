@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="120" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="36">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="120" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="41">
  <tileset firstgid="1" name="miau" tilewidth="16" tileheight="16" tilecount="1160" columns="58">
   <image source="tileset.png" width="928" height="320"/>
   <tile id="119">
@@ -105,5 +105,10 @@
   <object id="21" x="7.02975" y="101.931">
    <polygon points="-3.51487,26.3616 57.9954,-12.3021 258.343,130.05 404.211,22.8467 449.904,47.4508 553.593,-24.6041 579.954,-19.3318 713.519,59.7529 787.332,128.293 834.783,105.446 876.961,133.565 919.14,86.1144 966.59,110.719 1008.77,115.991 1133.55,-17.5744 1416.49,203.863 1467.46,196.833 1539.51,147.625 1551.82,114.233 1623.87,42.1785 1687.14,91.3867 1713.5,173.986 1910.33,-10.5446 1908.58,-107.204 -8.78719,-103.689"/>
   </object>
+  <object id="36" x="3" y="844">
+   <polygon points="0,0 172,-99 212,-99 547,79 974,81 1036,111 1085,94 1201,151 1293,109 1362,145 1388,145 1531,9 1601,-30 1742,-29 1917,58 1915,178 -3,180"/>
+  </object>
+  <object id="38" x="-144" y="105" width="143" height="759"/>
+  <object id="40" x="1920" y="116" width="246" height="836"/>
  </objectgroup>
 </map>

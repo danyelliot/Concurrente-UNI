@@ -1,6 +1,7 @@
 package com.concurrente.pc2;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -10,19 +11,17 @@ import com.badlogic.gdx.physics.box2d.*;
 import java.io.*;
 import java.net.Socket;
 
-public class Chopper implements Serializable {
+public class Chopper{
     private Sprite sprite;
     private int money;
     private int energy;
     private int index;
-    private Vector2 position;
     private final boolean isDebug;
     private ShapeRenderer shapeRenderer;
     private OutputStream out;
     private boolean bIsActive;
     private Body naveBody;
-    private boolean bCanMove = true;
-    private Vector2 lastPosition;
+    private BitmapFont font = new BitmapFont();
     public Chopper(int index,float x, float y,boolean isDebug, World world){
         this.bIsActive = true;
         this.index = index;
@@ -31,13 +30,11 @@ public class Chopper implements Serializable {
         this.sprite = new Sprite(texture);
         this.sprite.setScale(0.1f);
         this.money = 0;
-        this.energy = 100;
+        this.energy = 40;
         float scale = .7f;
         sprite.setSize(sprite.getWidth() * scale, sprite.getHeight() * scale);
         sprite.setScale(scale);
-        position = new Vector2(x, y);
         sprite.setPosition(x, y);
-        lastPosition = new Vector2(x, y);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         if (this.isDebug) {
             shapeRenderer = new ShapeRenderer();
@@ -51,24 +48,23 @@ public class Chopper implements Serializable {
         naveBody = world.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 1f;
+        fixtureDef.density = 1000f;
         fixtureDef.friction = 1.0f;
-        fixtureDef.restitution = 1.0f;
+        fixtureDef.restitution = 0f;
         naveBody.createFixture(fixtureDef);
         naveBody.setUserData(this);
 
         shape.dispose();
     }
-    public void saveLastPosition(){
-        lastPosition = new Vector2(sprite.getX(), sprite.getY());
-    }
-    public void changeToLastPosition(){
-        sprite.setPosition(lastPosition.x, lastPosition.y);
-    }
-    public void draw(SpriteBatch batch) {
+    public void draw(SpriteBatch batch, World world) {
         if (!bIsActive){
+            if (naveBody != null){
+                world.destroyBody(naveBody);
+                naveBody = null;
+            }
             return;
         }
+        font.draw(batch, "Energy: " + energy, sprite.getX(), sprite.getY() + sprite.getHeight() + 20);
         sprite.draw(batch);
         sprite.setPosition(naveBody.getPosition().x - sprite.getWidth()/2, naveBody.getPosition().y - sprite.getHeight()/2);
     }
@@ -76,9 +72,6 @@ public class Chopper implements Serializable {
         this.bIsActive = bIsActive;
     }
     public void forceMove(float desiredVelX, float desiredVelY){
-        if (!bCanMove){
-            return;
-        }
         Vector2 vel = naveBody.getLinearVelocity();
         float velChangeX = desiredVelX - vel.x;
         float velChangeY = desiredVelY - vel.y;
@@ -95,7 +88,7 @@ public class Chopper implements Serializable {
         naveBody.setLinearVelocity(0,0);
     }
     public void translate(float dx, float dy){
-        naveBody.setTransform(naveBody.getPosition().x + dx, naveBody.getPosition().y + dy, 0);
+        naveBody.setTransform(dx + sprite.getWidth()/2, dy + sprite.getHeight()/2, 0);
     }
 
     public void debugMode() {
@@ -118,7 +111,7 @@ public class Chopper implements Serializable {
 
     public void sendData(Socket clientSocket) throws IOException {
         out = clientSocket.getOutputStream();
-        String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation();
+        String data = getIndex() + "," + getX() + "," + getY() + "," + sprite.getRotation() + "," + getEnergy() + "," + getMoney();
         out.write("update".getBytes());
         out.write(data.getBytes());
         out.flush();
@@ -131,16 +124,41 @@ public class Chopper implements Serializable {
         out.flush();
     }
 
-    public void setMoney(int money){
-        this.money = money;
+    public int getMoney() {
+        return money;
     }
-    public void setEnergy(int energy){
-        this.energy = energy;
+    public int getEnergy() {
+        return energy;
     }
     public int getIndex(){
         return index;
     }
     public void setRotation(float rotation){
         this.sprite.setRotation(rotation);
+    }
+    public void sendBullet(Socket bulletsSocket){
+        OutputStream outputStream;
+        DataOutputStream dataOutputStream;
+        try {
+            outputStream = bulletsSocket.getOutputStream();
+            int direction = 1;
+            if (sprite.getRotation() == 180){
+                direction = -1;
+            }
+            String data = getIndex() + "," + (naveBody.getPosition().x + 70*direction) + "," + naveBody.getPosition().y + "," + sprite.getRotation() + "," + 8000;
+            outputStream.write(data.getBytes());
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void makeDamage(int damage){
+        this.energy -= damage;
+    }
+    public void setEnergy(int energy){
+        this.energy = energy;
+    }
+    public void setMoney(int money){
+        this.money = money;
     }
 }

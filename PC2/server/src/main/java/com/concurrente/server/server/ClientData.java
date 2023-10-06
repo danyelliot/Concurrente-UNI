@@ -16,16 +16,12 @@ public class ClientData {
         this.bIsActive = true;
         this.socket = socket;
     }
-    public void update(float x, float y, float rotation){
+    public void update(float x, float y, float rotation, int energy, int money){
         this.x = x;
         this.y = y;
         this.rotation = rotation;
-    }
-    public void setMoney(int money){
-        this.money = money;
-    }
-    public void setEnergy(int energy){
         this.energy = energy;
+        this.money = money;
     }
     public void setActive(boolean bIsActive){
         this.bIsActive = bIsActive;
