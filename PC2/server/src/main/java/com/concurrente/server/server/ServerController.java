@@ -1,7 +1,11 @@
 package com.concurrente.server.server;
 
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -12,7 +16,11 @@ import java.util.Vector;
 public class ServerController {
     @FXML
     private Label portLabel;
+    @FXML
+    private ListView<String> eventListView;
 
+    @FXML
+    private Button closeButton;
     private ServerSocket serverSocket;
     private Vector<ClientData> clients;
     private Vector<Socket> sockets;
@@ -60,10 +68,21 @@ public class ServerController {
         sendThread.start();
     }
 
+    private void addEventToList(String message) {
+        Platform.runLater(() -> {
+            ObservableList<String> items = eventListView.getItems();
+            items.add(message);
+        });
+    }
+
+
     private void handleClient(Socket clientSocket) {
         try {
             int index = clients.size();
-            System.out.println("Cliente "+ index + " conectado: " + clientSocket.getInetAddress());
+            //System.out.println("Cliente "+ index + " conectado: " + clientSocket.getInetAddress());
+            String clientMessage = "Cliente " + index + " se ha conectado IP: " + clientSocket.getInetAddress();
+            addEventToList(clientMessage);
+
             OutputStream outputStream = clientSocket.getOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             dataOutputStream.writeInt(index);
@@ -92,6 +111,8 @@ public class ServerController {
                     String data2 = new String(buffer2,0,inputStream.read(buffer2));
                     int indexTemp = Integer.parseInt(data2);
                     clients.get(indexTemp).setActive(false);
+                    String disconnectMessage = "Cliente " + indexTemp + " se ha desconectado";
+                    addEventToList(disconnectMessage);
                     System.out.println("Cliente " + indexTemp + " desconectado");
                     break;
                 }
@@ -102,16 +123,27 @@ public class ServerController {
     }
 
     // Método para detener el servidor *en revisión
+    @FXML
     public void stopServer() {
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
+                // Cierra el serverSocket
                 serverSocket.close();
                 System.out.println("Servidor detenido.");
+
+                // Cierra los sockets de los clientes
+                for (ClientData client : clients) {
+                    Socket clientSocket = client.getSocket();
+                    if (clientSocket != null && !clientSocket.isClosed()) {
+                        clientSocket.close();
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private void sendDataToClients() {
         OutputStream outputStream;
