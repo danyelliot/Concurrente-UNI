@@ -59,6 +59,9 @@ public class Chopper{
     }
     public void draw(SpriteBatch batch, World world) {
         if (!bCanDraw){
+            if(naveBody != null){
+                naveBody.setTransform(5000,5000,0);
+            }
             return;
         }
         if (!bIsActive){

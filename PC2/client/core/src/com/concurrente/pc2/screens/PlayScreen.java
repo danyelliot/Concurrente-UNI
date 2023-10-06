@@ -188,7 +188,7 @@ public class PlayScreen implements Screen {
         float viewportWidth = Gdx.graphics.getWidth();
         float viewportHeight = Gdx.graphics.getHeight();
         camera.setToOrtho(false, viewportWidth, viewportHeight);
-        map = new GameMap(camera, true);
+        map = new GameMap(camera, false);
     }
     @Override
     public void render(float delta) {
