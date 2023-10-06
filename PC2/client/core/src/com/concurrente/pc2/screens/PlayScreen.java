@@ -190,7 +190,12 @@ public class PlayScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        map.getWorld().step(1/60f, 6, 2);
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+        }
+        if(clientChopper.getEnergy() <= 0){
+            Gdx.app.exit();
+        }
         ScreenUtils.clear(55/255.0f, 102/255.0f, 108/255.0f, 1);
         map.render();
         batch.begin();
@@ -209,6 +214,7 @@ public class PlayScreen implements Screen {
         }
         batch.end();
         clientChopper.debugMode();
+        map.getWorld().step(1/60f, 6, 2);
     }
 
     @Override
@@ -237,6 +243,7 @@ public class PlayScreen implements Screen {
         try {
             clientChopper.sendDisconnect(clientSocket);
             clientSocket.close();
+            bulletsSocket.close();
             clientChopper.dispose();
         } catch (IOException e) {
             throw new RuntimeException(e);

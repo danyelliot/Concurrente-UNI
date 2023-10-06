@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
@@ -164,6 +165,8 @@ public class ServerController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     private void handleBullets(Socket bulletsSocket){
@@ -171,7 +174,11 @@ public class ServerController {
             while (true){
                 byte[] buffer = new byte[1024];
                 InputStream inputStream = bulletsSocket.getInputStream();
-                String data = new String(buffer,0,inputStream.read(buffer));
+                int read = inputStream.read(buffer);
+                if (read == -1){
+                    break;
+                }
+                String data = new String(buffer,0,read);
                 String[] dataSplit = data.split(",");
                 int index = Integer.parseInt(dataSplit[0]);
                 float x = Float.parseFloat(dataSplit[1]);
@@ -186,10 +193,8 @@ public class ServerController {
                 }
                 Thread.sleep(100);
             }
-        }catch (IOException e){
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        }catch (InterruptedException | IOException e) {
+            System.out.println("Error");
         }
     }
     @FXML

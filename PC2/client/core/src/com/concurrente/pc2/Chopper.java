@@ -64,7 +64,7 @@ public class Chopper{
             }
             return;
         }
-        font.draw(batch, "Energy: " + energy, sprite.getX(), sprite.getY() + sprite.getHeight() + 20);
+        font.draw(batch, "Energy: " + energy, sprite.getX() + 15 , sprite.getY() + sprite.getHeight());
         sprite.draw(batch);
         sprite.setPosition(naveBody.getPosition().x - sprite.getWidth()/2, naveBody.getPosition().y - sprite.getHeight()/2);
     }
@@ -72,6 +72,12 @@ public class Chopper{
         this.bIsActive = bIsActive;
     }
     public void forceMove(float desiredVelX, float desiredVelY){
+        if(!bIsActive){
+            return;
+        }
+        if (naveBody == null){
+            return;
+        }
         Vector2 vel = naveBody.getLinearVelocity();
         float velChangeX = desiredVelX - vel.x;
         float velChangeY = desiredVelY - vel.y;
@@ -85,9 +91,18 @@ public class Chopper{
         naveBody.applyLinearImpulse(impulseX, impulseY, naveBody.getWorldCenter().x, naveBody.getWorldCenter().y, true);
     }
     public void stopMove(){
+        if (naveBody == null){
+            return;
+        }
         naveBody.setLinearVelocity(0,0);
     }
     public void translate(float dx, float dy){
+        if (!bIsActive){
+            return;
+        }
+        if (naveBody == null){
+            return;
+        }
         naveBody.setTransform(dx + sprite.getWidth()/2, dy + sprite.getHeight()/2, 0);
     }
 
@@ -137,8 +152,10 @@ public class Chopper{
         this.sprite.setRotation(rotation);
     }
     public void sendBullet(Socket bulletsSocket){
+        if (naveBody == null){
+            return;
+        }
         OutputStream outputStream;
-        DataOutputStream dataOutputStream;
         try {
             outputStream = bulletsSocket.getOutputStream();
             int direction = 1;
