@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -37,16 +39,9 @@ public class GameMap{
 
                 Object userDataA = fixtureA.getBody().getUserData();
                 Object userDataB = fixtureB.getBody().getUserData();
-                System.out.println(userDataA.getClass());
-                System.out.println(userDataB.getClass());
 
-                if ((userDataA instanceof GameMap || userDataA instanceof Chopper) && (userDataB instanceof GameMap || userDataB instanceof Chopper)) {
-                    System.out.println("Chocaron");
-                    if (userDataA instanceof Chopper) {
-                        ((Chopper) userDataA).moveBack();
-                        return;
-                    }
-                    ((Chopper) userDataB).moveBack();
+                if (userDataB instanceof Chopper) {
+                    ((Chopper) userDataB).saveLastPosition();
                 }
             }
 
@@ -55,6 +50,17 @@ public class GameMap{
             }
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+
+                Object userDataA = fixtureA.getBody().getUserData();
+                Object userDataB = fixtureB.getBody().getUserData();
+
+                if (userDataB instanceof Chopper) {
+                    System.out.println("Chocaron");
+                    ((Chopper) userDataB).changeToLastPosition();
+                }
+
             }
             @Override
             public void postSolve(Contact contact, ContactImpulse impulse) {
@@ -93,7 +99,6 @@ public class GameMap{
 
                 bodyDef.position.set(0, 0);
                 Body body = world.createBody(bodyDef);
-                body.setUserData(object);
 
                 ChainShape shape = new ChainShape();
                 shape.createLoop(worldVertices);
@@ -101,6 +106,28 @@ public class GameMap{
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
                 body.createFixture(fixtureDef);
+
+                body.setUserData(object);
+                shape.dispose();
+            }
+            if (object instanceof RectangleMapObject) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+                BodyDef bodyDef = new BodyDef();
+                bodyDef.type = BodyDef.BodyType.StaticBody;
+                bodyDef.position.set(rect.x + rect.width / 2, rect.y + rect.height / 2);
+
+                Body body = world.createBody(bodyDef);
+
+                PolygonShape shape = new PolygonShape();
+
+                shape.setAsBox(rect.width / 2, rect.height / 2);
+
+                FixtureDef fixtureDef = new FixtureDef();
+                fixtureDef.shape = shape;
+
+                body.createFixture(fixtureDef);
+                body.setUserData(object);
 
                 shape.dispose();
             }
