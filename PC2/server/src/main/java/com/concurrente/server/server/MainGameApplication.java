@@ -10,15 +10,15 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class MainGameApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainGameApplication.class.getResource("menu-view.fxml"));
         VBox root = fxmlLoader.load();
         Scene scene = new Scene(root, 350, 310);
-        HelloController controller=fxmlLoader.getController();
+        MenuController controller=fxmlLoader.getController();
         controller.setPrimaryStage(stage);
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
