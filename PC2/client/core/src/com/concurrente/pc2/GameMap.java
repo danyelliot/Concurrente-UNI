@@ -25,7 +25,7 @@ public class GameMap{
         debugRenderer.setDrawContacts(debug);
         debugRenderer.setDrawAABBs(debug);
         debugRenderer.setDrawInactiveBodies(debug);
-        map = new TmxMapLoader().load("map.tmx");
+        map = new TmxMapLoader().load("map2.tmx");
         world = new World(new Vector2(0,0),true);
         this.camera = camera;
         loadCollisions();
