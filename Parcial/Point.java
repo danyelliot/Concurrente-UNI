@@ -1,12 +1,18 @@
 public class Point {
-    private final int x;
-    private final int y;
-    public Point(int x, int y){
+    private float x;
+    private float y;
+    public Point(float x, float y){
         this.x = x;
         this.y = y;
     }
-    public int getX(){return x;}
-    public int getY(){return y;}
+    public float getX(){return x;}
+    public float getY(){return y;}
+
+    public void update(float x, float y){
+        this.x = x;
+        this.y = y;
+    }
+
     @Override
     public String toString(){
         return "(" + x + "," + y + ")";
