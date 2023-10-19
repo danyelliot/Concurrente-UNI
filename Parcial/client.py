@@ -1,5 +1,4 @@
 import socket
-import struct
 import threading
 class Point:
     def __init__(self, x, y):

@@ -223,6 +223,7 @@ class ClientHandler extends Thread{
             while (true) {
                 if (scanner.hasNextLine()) {
                     String message = scanner.nextLine();
+                    System.out.println("Received data from client " + index + ": " + message);
                     synchronized (Server.receiveIndex){
                         Server.receiveIndex.add(index);
                     }
