@@ -9,9 +9,12 @@ public class Server {
     private static final int port = 2206;
     private static ServerSocket server;
     static final List<Socket> clients = new ArrayList<>();
+    static long startTime;
+    static long endTime;
+    static long totalTime;
 
-    private static final int numberPoints = 6;
-    private static final int numberCentroids = 2;
+    private static final int numberPoints = 1000000;
+    private static final int numberCentroids = 100;
     private static final Vector<Point> points = new Vector<Point>();
     private static Vector<Point> centroids = new Vector<Point>();
     private static Vector<Integer> oldCluster = new Vector<Integer>();;
@@ -47,6 +50,7 @@ public class Server {
             while (true) {
                 String message = scanner.nextLine();
                 if(message.equals("SEND")){
+                    startTime = System.currentTimeMillis();
                     sendData();
                 }
             }
@@ -112,8 +116,8 @@ public class Server {
             float y = points.get(n).getY();
             centroids.add(new Point(x,y));
         }
-        System.out.println("Points: " + points);
-        System.out.println("Centroids: " + centroids);
+        System.out.println("Number of points: " + numberPoints);
+        System.out.println("Number of centroids: " + numberCentroids);
     }
     public static void sortData(){
         int n = receiveIndex.size();
@@ -137,6 +141,10 @@ public class Server {
         }else{
             parseClusterData(cluster);
             if(oldCluster.equals(cluster)){
+                endTime = System.currentTimeMillis();
+                totalTime = endTime - startTime;
+                System.out.println("Total time: " + totalTime + "ms");
+                System.out.println(totalTime + " , " + points.size());
                 System.out.println("DONE");
                 System.exit(0);
             }else{
@@ -179,13 +187,12 @@ public class Server {
         }
 
         for (int c = 0; c < centroids.size(); c++) {
-                centroids.get(c).update(sumPointsX[c] / count[c], sumPointsY[c] / count[c]);
+            centroids.get(c).update(sumPointsX[c] / count[c], sumPointsY[c] / count[c]);
         }
         sendNewCentroids();
     }
 
     private static void sendNewCentroids(){
-        System.out.println("New centroids: " + centroids);
         receiveIndex.clear();
         receiveData.clear();
         for (Socket client : clients) {
@@ -222,8 +229,8 @@ class ClientHandler extends Thread{
             Scanner scanner = new Scanner(entry);
             while (true) {
                 if (scanner.hasNextLine()) {
+                    System.out.println("Received data from client " + index);
                     String message = scanner.nextLine();
-                    System.out.println("Received data from client " + index + ": " + message);
                     synchronized (Server.receiveIndex){
                         Server.receiveIndex.add(index);
                     }

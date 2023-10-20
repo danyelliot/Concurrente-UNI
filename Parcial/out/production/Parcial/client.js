@@ -1,5 +1,4 @@
 const net = require('net');
-const thread = require('worker_threads');
 
 class Point {
     constructor(x, y) {
