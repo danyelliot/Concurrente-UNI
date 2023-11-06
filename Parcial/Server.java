@@ -13,7 +13,7 @@ public class Server {
     static long endTime;
     static long totalTime;
 
-    private static final int numberPoints = 1000000;
+    private static final int numberPoints = 10000;
     private static final int numberCentroids = 100;
     private static final Vector<Point> points = new Vector<Point>();
     private static Vector<Point> centroids = new Vector<Point>();
