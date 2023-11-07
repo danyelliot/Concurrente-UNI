@@ -13,12 +13,23 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type Prod struct {
-	Id       int
-	Name     string
-	Category string
-	Amount   int
-	Cost     float64
+// make a product struct
+type Product struct {
+	ID        int
+	Name      string
+	Category  string
+	Amount    int
+	Cost      float64
+	CostTotal float64
+}
+
+func productsToString(products []Product) string {
+	var msg string
+	for i := 0; i < len(products); i++ {
+		msg += strconv.Itoa(products[i].ID) + "," + products[i].Name + "," + products[i].Category + "," + strconv.Itoa(products[i].Amount) + "," + strconv.FormatFloat(products[i].Cost, 'f', -1, 64) + "," + strconv.FormatFloat(products[i].CostTotal, 'f', -1, 64) + ";"
+	}
+	msg = msg[:len(msg)-1]
+	return msg
 }
 
 func sendProducts(db *sql.DB) string {
@@ -96,6 +107,57 @@ func updateProducts(values []string, db *sql.DB) {
 	}
 }
 
+func getDataFromId(db *sql.DB, id int, amount int) Product {
+	consultaF := "SELECT * FROM products WHERE ID_PROD = ?"
+	rows, err := db.Query(consultaF, id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var product Product
+	for rows.Next() {
+		err := rows.Scan(&product.ID, &product.Name, &product.Category, &product.Amount, &product.Cost)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	product.Amount = amount
+	return product
+}
+
+func sendToJava(db *sql.DB, name string, ruc string, products string, ch *amqp.Channel) string {
+	var msg string
+	msg = name + ";" + ruc
+	temp := strings.Split(products, ",")
+	prds := []Product{}
+	for i := 0; i < len(temp); i += 2 {
+		temp[i] = strings.Trim(temp[i], " ")
+		id, _ := strconv.Atoi(temp[i])
+		amount, _ := strconv.Atoi(temp[i+1])
+		prd := getDataFromId(db, id, amount)
+		prd.CostTotal = prd.Cost * float64(prd.Amount)
+		prd.CostTotal = float64(int(prd.CostTotal*100)) / 100
+		prds = append(prds, prd)
+	}
+	msg += ";" + productsToString(prds)
+	err := ch.Publish(
+		"",
+		"go-java-queue",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(msg),
+		})
+	failOnError(err, "Failed to publish a message to the new queue")
+	return "Venta Realizada"
+}
+
 func failOnError(err error, msg string) {
 	if err != nil {
 		log.Panicf("%s: %s", msg, err)
@@ -122,24 +184,24 @@ func main() {
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	failOnError(err, "Failed to open the client channel")
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"go-java-queue",
+		"go-python-queue",
 		false,
 		false,
 		false,
 		false,
 		nil,
 	)
-	failOnError(err, "Failed to declare a queue")
+	failOnError(err, "Failed to declare the client queue")
 	err = ch.Qos(
 		1,
 		0,
 		false,
 	)
-	failOnError(err, "Failed to set QoS")
+	failOnError(err, "Failed to set the client QoS")
 
 	msgs, err := ch.Consume(
 		q.Name,
@@ -150,7 +212,11 @@ func main() {
 		false,
 		nil,
 	)
-	failOnError(err, "Failed to register a consumer")
+	failOnError(err, "Failed to register the client consumer")
+
+	ch_java, err := conn.Channel()
+	failOnError(err, "Failed to open the java channel")
+	defer ch_java.Close()
 
 	var forever chan struct{}
 	go func() {
@@ -164,14 +230,13 @@ func main() {
 			} else {
 				log.Printf(" [.] Recibido: %v", msg)
 				resp := strings.Split(msg, ";")
-				/*user := resp[0]
-				ruc := resp[1]*/
 				values := strings.Split(resp[2], "/")
-				if checkAllExistences(db, values) {
-					response = "Venta realizada"
-					updateProducts(values, db)
-				} else {
+				if !checkAllExistences(db, values) {
 					response = "No se pudo realizar la venta"
+				} else {
+					updateProducts(values, db)
+					sendToJava(db, resp[0], resp[1], arrayToString(values), ch_java)
+					response = "Venta Realizada"
 				}
 			}
 			err = ch.PublishWithContext(ctx,
