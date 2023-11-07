@@ -6,7 +6,6 @@ import java.sql.Connection;
 
 public class ServerJava {
     Connection postgresConnection;
-    int saleID = 0;
     public void connectToPostgres(){
         try {
             Class.forName("org.postgresql.Driver");
@@ -20,7 +19,18 @@ public class ServerJava {
         }
     }
 
+    private int getActualSale() throws SQLException {
+        String query = "SELECT MAX(id_sales) FROM bill";
+        java.sql.PreparedStatement preparedStatement = postgresConnection.prepareStatement(query);
+        java.sql.ResultSet resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()){
+            return resultSet.getInt(1)+1;
+        }
+        return 0;
+    }
+
     private int createSale(String name, String RUC, double total) throws SQLException {
+        int saleID = getActualSale();
         String query = "INSERT INTO bill (id_sales,ruc, name,cost_total) VALUES (?, ?, ?, ?)";
         java.sql.PreparedStatement preparedStatement = postgresConnection.prepareStatement(query);
         preparedStatement.setInt(1, saleID);
