@@ -19,11 +19,11 @@ public class Rabbit {
 
     void initChannel(String queueName) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
+        factory.setHost("10.10.0.238");
         factory.setPort(5672);
         factory.setVirtualHost("venta_host");
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+        factory.setUsername("chan");
+        factory.setPassword("chan");
 
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();

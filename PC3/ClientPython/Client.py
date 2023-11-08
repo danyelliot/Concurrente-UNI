@@ -1,3 +1,5 @@
+import random
+import time
 import pika
 import uuid
 import flet as ft
@@ -8,7 +10,7 @@ class System:
     cart = {}
 
     def __init__(self):
-        credentials = pika.PlainCredentials('guest', 'guest')
+        credentials = pika.PlainCredentials('chan', 'chan')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters('localhost', 5672, 'venta_host', credentials))
 
@@ -181,8 +183,7 @@ def show_products(page: ft.Page):
                             icon=ft.icons.ADD,
                             icon_color="blue400",
                             icon_size=20,
-                            tooltip="Agregar al carrito" +
-                            str(id),
+                            tooltip="Agregar al carrito",
                             on_click=create_add_func()
                         ),
                     ],
@@ -377,3 +378,5 @@ def main_window(page: ft.Page):
 
 
 ft.app(target=main_window, view=ft.AppView.FLET_APP_HIDDEN)
+
+
