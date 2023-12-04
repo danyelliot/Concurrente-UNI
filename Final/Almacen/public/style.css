@@ -1,21 +1,51 @@
 body{
-    background: rgb(44, 3, 38);
+    background: #B0918D;
 }
 
 *{
-    color: aliceblue;
+    color: #463735;
 }
 #Update{
-    background-color: rgba(0, 123, 255, 0.5); 
+    background-color: #4B4C6C; 
+    color: #fff;
+    border: none;
+    display: none;
+}
+#Submit{
+    background-color: #675470; 
+    border: none;
     color: #fff;
 }
+#edit{
+    background-color: #3A755F; 
+    border: none;
+    color: #fff;
+}
+#delete{
+    background-color: #9B2E31; 
+    border: none;
+    color: #fff;
+}
+
+hr{
+    border: 1px solid #fff;
+    width: 100%;
+}
+
 #crudTable {
-    background-color: transparent;/*rgba(255, 255, 255, 0.5);  */
+    background-color: transparent;
     color: white;
-  }
+}
   
-  #crudTable th, #crudTable td {
+#crudTable th, #crudTable td {
     background-color: transparent; 
     color: white;
-  }
+}
+#crudTable th:nth-child(6) {
+    width: 15%; 
+}
+#crudTable tr{
+    height: 10px;
+}
+
   
