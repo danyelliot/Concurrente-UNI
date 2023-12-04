@@ -1,0 +1,21 @@
+body{
+    background: rgb(44, 3, 38);
+}
+
+*{
+    color: aliceblue;
+}
+#Update{
+    background-color: rgba(0, 123, 255, 0.5); 
+    color: #fff;
+}
+#crudTable {
+    background-color: transparent;/*rgba(255, 255, 255, 0.5);  */
+    color: white;
+  }
+  
+  #crudTable th, #crudTable td {
+    background-color: transparent; 
+    color: white;
+  }
+  
