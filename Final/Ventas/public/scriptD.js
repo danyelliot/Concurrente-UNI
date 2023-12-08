@@ -2,9 +2,8 @@ function validateDetailForm(){
     var idProduct = document.getElementById("idProduct").value;
     var quantity = document.getElementById("quantity").value;
 
-
     if (idProduct == "") {
-        alert("Product must be filled out");
+        alert("ID Product must be filled out");
         return false;
     }
     if (quantity == "") {
@@ -34,30 +33,31 @@ function showDetailData(){
         index = index + 1;
         html += "<tr>";
         html += "<td>" + (index) + "</td>";
-        html += "<td>" + sales.ruc + "</td>";
-        html += "<td>" + sales.name + "</td>";
-        html += "<td>" + "precio" + "</td>";
-        
+        html += "<td>" + sales.idProduct + "</td>";
+        html += "<td>" + "nombre" + "</td>";
+        html += "<td>" + "tipo" + "</td>";
+        html += "<td>" + sales.quantity + "</td>";
+        html += "<td>" + "cost u" + "</td>";
+        html += "<td>" + "cost t" + "</td>";
         //html += 
         //    '<td><button class="btn btn-danger" onclick="deleteProduct('+index+')">Delete</button><button class="btn btn-warning m-2" onclick="updateProduct('+index+')">Edit</button></td>';
         html += '<td class="d-flex align-items-center justify-content-center flex-row flex-wrap">' +
-        '<button id="edit" class="btn btn-warning me-3" onclick="visualizeProduct(' + index + ')">Ver</button>' +
         '<button id="edit" class="btn btn-warning me-3" onclick="updateProduct(' + index + ')">Edit</button>' +
         '<button id="delete" class="btn btn-danger" onclick="deleteProduct(' + index + ')">Delete</button>' +
         '</td>';
         html += "</tr>";
     }); 
     
-    document.querySelector("#crudTable tbody").innerHTML = html;
+    document.querySelector("#crudTableD tbody").innerHTML = html;
 }
 
   //Loads all data when document or page loaded
-  document.onload = showData();
+  document.onload = showDetailData();
   
   function AddData(){
-      if(validateSaleForm() == true){  
-          var ruc = document.getElementById("ruc").value;
-          var name = document.getElementById("name").value;
+      if(validateDetailForm() == true){  
+          var idProduct = document.getElementById("idProduct").value;
+          var quantity = document.getElementById("quantity").value;
       
           var salesList;
           if(localStorage.getItem("salesList") == null){
@@ -67,17 +67,16 @@ function showDetailData(){
           }
   
           salesList.push({
-              ruc: ruc,
-              name: name,
+              idProduct: idProduct,
+              quantity: quantity,
           });
   
           localStorage.setItem("salesList", JSON.stringify(salesList));
-          showData();
+          showDetailData();
   
-          document.getElementById("ruc").value = "";
-          document.getElementById("name").value = "";
-        
-        
+          document.getElementById("idProduct").value = "";
+          document.getElementById("quantity").value = "";
+             
   
       }
   }
@@ -91,7 +90,7 @@ function showDetailData(){
       }
       salesList.splice(index-1, 1);
       localStorage.setItem("salesList", JSON.stringify(salesList));
-      showData();
+      showDetailData();
   }
   
   function updateProduct(index){
@@ -105,28 +104,25 @@ function showDetailData(){
       } else {
           salesList = JSON.parse(localStorage.getItem("salesList"));
       }
-      document.getElementById("ruc").value = salesList[index].ruc;
-      document.getElementById("name").value = salesList[index].name;
-
+      document.getElementById("idProduct").value = salesList[index].idProduct;
+      document.getElementById("quantity").value = salesList[index].quantity;
+      
   
       document.querySelector("#Update").onclick = function(){
-          if(validateSaleForm() == true){
-              salesList[index].ruc = document.getElementById("ruc").value;
-              salesList[index].name = document.getElementById("name").value;
+          if(validateDetailForm() == true){
+              salesList[index].idProduct = document.getElementById("idProduct").value;
+              salesList[index].quantity = document.getElementById("quantity").value;
             
               localStorage.setItem("salesList", JSON.stringify(salesList));
   
-              showData();
+              showDetailData();
 
-              document.getElementById("ruc").value = "";
-              document.getElementById("name").value = "";
+              document.getElementById("idProduct").value = "";
+              document.getElementById("quantity").value = "";
  
               document.getElementById("Submit").style.display = "block";
               document.getElementById("Update").style.display = "none";
           }
       }
   }
-function visualizeProduct(index){
-    window.location.href = 'detail.html?id=' + index;
-}
 
