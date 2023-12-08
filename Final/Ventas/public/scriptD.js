@@ -1,56 +1,56 @@
-function validateSaleForm() {
-    var ruc = document.getElementById("ruc").value;
-    var name = document.getElementById("name").value;
+function validateDetailForm(){
+    var idProduct = document.getElementById("idProduct").value;
+    var quantity = document.getElementById("quantity").value;
 
-    if (name == "") {
-      alert("Name must be filled out");
-      return false;
+
+    if (idProduct == "") {
+        alert("Product must be filled out");
+        return false;
+    }
+    if (quantity == "") {
+        alert("Quantity must be filled out");
+        return false;
+    } else if(quantity < 1){
+        alert("Quantity must be greater than 0");
+        return false;
     }
     
-    if (ruc == "") {
-        alert("RUC must be filled out");
-        return false;
-      }
-    else if(ruc.length != 11){
-        alert("RUC must be 11 digits");
-        return false;
-    }
-  
     return true;
-  }
-  
-  function showData(){
-      var salesList;
-      if(localStorage.getItem("salesList") == null){
-          salesList = [];
-      }
-      else{
-          salesList = JSON.parse(localStorage.getItem("salesList"));
-      }
-  
-      var html="";
-      var index = 0;
-      salesList.forEach(function(sales, index){
-          index = index + 1;
-          html += "<tr>";
-          html += "<td>" + (index) + "</td>";
-          html += "<td>" + sales.ruc + "</td>";
-          html += "<td>" + sales.name + "</td>";
-          html += "<td>" + "precio" + "</td>";
-          
-          //html += 
-          //    '<td><button class="btn btn-danger" onclick="deleteProduct('+index+')">Delete</button><button class="btn btn-warning m-2" onclick="updateProduct('+index+')">Edit</button></td>';
-          html += '<td class="d-flex align-items-center justify-content-center flex-row flex-wrap">' +
-          '<button id="edit" class="btn btn-warning me-3" onclick="visualizeProduct(' + index + ')">Ver</button>' +
-          '<button id="edit" class="btn btn-warning me-3" onclick="updateProduct(' + index + ')">Edit</button>' +
-          '<button id="delete" class="btn btn-danger" onclick="deleteProduct(' + index + ')">Delete</button>' +
-          '</td>';
-          html += "</tr>";
-      }); 
-      
-      document.querySelector("#crudTable tbody").innerHTML = html;
-  
-  }
+
+}
+
+function showDetailData(){
+    var salesList;
+    if(localStorage.getItem("salesList") == null){
+        salesList = [];
+    }
+    else{
+        salesList = JSON.parse(localStorage.getItem("salesList"));
+    }
+
+    var html="";
+    var index = 0;
+    salesList.forEach(function(sales, index){
+        index = index + 1;
+        html += "<tr>";
+        html += "<td>" + (index) + "</td>";
+        html += "<td>" + sales.ruc + "</td>";
+        html += "<td>" + sales.name + "</td>";
+        html += "<td>" + "precio" + "</td>";
+        
+        //html += 
+        //    '<td><button class="btn btn-danger" onclick="deleteProduct('+index+')">Delete</button><button class="btn btn-warning m-2" onclick="updateProduct('+index+')">Edit</button></td>';
+        html += '<td class="d-flex align-items-center justify-content-center flex-row flex-wrap">' +
+        '<button id="edit" class="btn btn-warning me-3" onclick="visualizeProduct(' + index + ')">Ver</button>' +
+        '<button id="edit" class="btn btn-warning me-3" onclick="updateProduct(' + index + ')">Edit</button>' +
+        '<button id="delete" class="btn btn-danger" onclick="deleteProduct(' + index + ')">Delete</button>' +
+        '</td>';
+        html += "</tr>";
+    }); 
+    
+    document.querySelector("#crudTable tbody").innerHTML = html;
+}
+
   //Loads all data when document or page loaded
   document.onload = showData();
   

@@ -1,0 +1,67 @@
+body{
+    background: #B0918D;
+}
+
+*{
+    color: #463735;
+}
+#Update{
+    background-color: #4B4C6C; 
+    color: #fff;
+    border: none;
+    display: none;
+}
+#Submit{
+    background-color: #675470; 
+    border: none;
+    color: #fff;
+}
+#edit{
+    background-color: #3A755F; 
+    border: none;
+    color: #fff;
+}
+#delete{
+    background-color: #9B2E31; 
+    border: none;
+    color: #fff;
+}
+
+hr{
+    border: 1px solid #fff;
+    width: 100%;
+}
+
+#crudTable {
+    background-color: transparent;
+    color: white;
+}
+  
+#crudTable th, #crudTable td {
+    background-color: transparent; 
+    color: white;
+}
+#crudTable th:nth-child(5) {
+    width: 21%; 
+}
+
+#crudTable tr{
+    height: 10px;
+}
+
+#crudTableD {
+    background-color: transparent;
+    color: white;
+}
+#crudTableD th, #crudTableD td {
+    background-color: transparent; 
+    color: white;
+}
+#crudTableD th:nth-child(8) {
+    width: 15%; 
+}
+#crudTableD tr{
+    height: 10px;
+}
+
+  
