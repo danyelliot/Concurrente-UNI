@@ -34,25 +34,18 @@ function validateForm() {
   return true;
 }
 
-function showData(){
-    var productList;
-    if(localStorage.getItem("productList") == null){
-        productList = [];
-    }
-    else{
-        productList = JSON.parse(localStorage.getItem("productList"));
-    }
-
-    var html="";
-    var index = 0;
-    productList.forEach(function(product, index){
-        index = index + 1;
+async function showData(){
+    const productList = (await fetch('http://localhost:3000/almacen').then(response => response.text())).split('\n');
+    let html="";
+    productList.forEach(function(product){
+        product = product.split(',')
+        index = product[0];
         html += "<tr>";
         html += "<td>" + (index) + "</td>";
-        html += "<td>" + product.name + "</td>";
-        html += "<td>" + product.category + "</td>";   
-        html += "<td>" + product.amount + "</td>";
-        html += "<td>" + product.cost + "</td>";
+        html += "<td>" + product[1] + "</td>";
+        html += "<td>" + product[2] + "</td>";   
+        html += "<td>" + product[3] + "</td>";
+        html += "<td>" + product[4] + "</td>";
         //html += 
         //    '<td><button class="btn btn-danger" onclick="deleteProduct('+index+')">Delete</button><button class="btn btn-warning m-2" onclick="updateProduct('+index+')">Edit</button></td>';
         html += '<td class="d-flex align-items-center justify-content-center flex-row flex-wrap">' +
@@ -68,76 +61,57 @@ function showData(){
 //Loads all data when document or page loaded
 document.onload = showData();
 
-function AddData(){
+async function AddData(){
     if(validateForm() == true){
-        var name = document.getElementById("name").value;
-        var category = document.getElementById("category").value;   
-        var amount = document.getElementById("amount").value;   
-        var cost = document.getElementById("cost").value;   
-
-        var productList;
-        if(localStorage.getItem("productList") == null){
-            productList = [];
-        } else {
-            productList = JSON.parse(localStorage.getItem("productList"));
-        }
-
-        productList.push({
-            name: name,
-            category: category,
-            amount: amount,
-            cost: cost
+        let name = document.getElementById("name").value;
+        let category = document.getElementById("category").value;   
+        let amount = document.getElementById("amount").value;   
+        let cost = document.getElementById("cost").value;   
+        await fetch('http://localhost:3000/almacen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: `${name},${category},${amount},${cost}`
         });
-
-        localStorage.setItem("productList", JSON.stringify(productList));
         showData();
 
         document.getElementById("name").value = "";
         document.getElementById("category").value = "";
         document.getElementById("amount").value = "";
         document.getElementById("cost").value = "";
-
+        window.scrollTo(0, document.body.scrollHeight);
     }
 }
 
-function deleteProduct(index){
-    var productList;
-    if(localStorage.getItem("productList") == null){
-        productList = [];
-    }
-    else{
-        productList = JSON.parse(localStorage.getItem("productList"));
-    }
-    productList.splice(index-1, 1);
-    localStorage.setItem("productList", JSON.stringify(productList));
+async function deleteProduct(index){
+    await fetch('http://localhost:3000/almacen/' + index, {
+        method: 'DELETE'
+    });
     showData();
 }
 
-function updateProduct(index){
-    index = index - 1;
+async function updateProduct(index){
     document.getElementById("Submit").style.display = "none";
     document.getElementById("Update").style.display = "block";
 
-    var productList;
-    if(localStorage.getItem("productList") == null){
-        productList = [];
-    } else {
-        productList = JSON.parse(localStorage.getItem("productList"));
-    }
-
-    document.getElementById("name").value = productList[index].name;
-    document.getElementById("category").value = productList[index].category;
-    document.getElementById("amount").value = productList[index].amount;    
-    document.getElementById("cost").value = productList[index].cost;
-
-    document.querySelector("#Update").onclick = function(){
+    let product = await fetch('http://localhost:3000/almacen/' + index).then(response => response.text());
+    product = product.substring(0, product.length - 2);
+    product = product.split(',');
+    document.getElementById("name").value = product[1];
+    document.getElementById("category").value = product[2];
+    document.getElementById("amount").value = product[3];    
+    document.getElementById("cost").value = product[4];
+    window.scrollTo(0, 0);
+    document.querySelector("#Update").onclick = async function(){
         if(validateForm() == true){
-            productList[index].name = document.getElementById("name").value;
-            productList[index].category = document.getElementById("category").value;
-            productList[index].amount = document.getElementById("amount").value;
-            productList[index].cost = document.getElementById("cost").value;
-
-            localStorage.setItem("productList", JSON.stringify(productList));
+            await fetch('http://localhost:3000/almacen/' + index, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: `${document.getElementById("name").value},${document.getElementById("category").value},${document.getElementById("amount").value},${document.getElementById("cost").value}`
+            });
 
             showData();
 

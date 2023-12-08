@@ -56,26 +56,121 @@ const server = http.createServer((req, res) => {
         const id = params[2];
         if (!isNaN(id)) {
             if (req.method === 'GET') {
-                console.log('GET for id ' + id);
-                res.end();
+                fs.readFile('almacen.txt', 'utf8', (err, data) => {
+                    if (err) {
+                      res.writeHead(500, { 'Content-Type': 'text/plain' });
+                      res.end('Error al leer el archivo');
+                      return;
+                    }
+                    const lines = data.split('\n');
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].split(',');
+                        if (line[0] === id) {
+                            res.writeHead(200, { 'Content-Type': 'text/plain' });
+                            res.end(line.join(','));
+                            return;
+                        }
+                    }
+                });
             }
-            if (req.method === 'PATCH') {
-                console.log('PATCH for id ' + id);
-                res.end();
+            if (req.method === 'PUT') {
+                let body = '';
+                req.on('data', chunk => {
+                    body += chunk.toString();
+                });
+                req.on('end', async () => {
+                    fs.readFile('almacen.txt', 'utf8', (err, data) => {
+                        if (err) {
+                          res.writeHead(500, { 'Content-Type': 'text/plain' });
+                          res.end('Error al leer el archivo');
+                          return;
+                        }
+                        const lines = data.split('\n');
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i].split(',');
+                            if (line[0] === id) {
+                                lines[i] = `${id},${body}`;
+                                break;
+                            }
+                        }
+                        const updatedData = lines.join('\n');
+                        fs.writeFile('almacen.txt', updatedData, 'utf8', (err) => {
+                            if (err) {
+                                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                                res.end('Error al actualizar el archivo');
+                                return;
+                            }
+                  
+                            res.writeHead(200, { 'Content-Type': 'text/plain' });
+                            res.end(`Producto con id ${id} actualizado`);
+                        });
+                    });
+                });
             }
             if (req.method === 'DELETE') {
-                console.log('DELETE for id ' + id);
-                res.end();
+                fs.readFile('almacen.txt', 'utf8', (err, data) => {
+                    if (err) {
+                      res.writeHead(500, { 'Content-Type': 'text/plain' });
+                      res.end('Error al leer el archivo');
+                      return;
+                    }
+                    const lines = data.split('\n');
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].split(',');
+                        if (line[0] === id) {
+                            lines.splice(i, 1);
+                            break;
+                        }
+                    }
+                    const updatedData = lines.join('\n');
+                    fs.writeFile('almacen.txt', updatedData, 'utf8', (err) => {
+                        if (err) {
+                            res.writeHead(500, { 'Content-Type': 'text/plain' });
+                            res.end('Error al actualizar el archivo');
+                            return;
+                        }
+              
+                        res.writeHead(200, { 'Content-Type': 'text/plain' });
+                        res.end(`Producto con id ${id} eliminado`);
+                    });
+                });
             }
             return;
         }
-        if (req.method === 'GET') {
-            console.log('GET all');
-            res.end();
+        if (req.method === 'GET') {     
+            fs.readFile('./almacen.txt', (err, data) => {
+                if (err) throw err  
+                res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end(data);
+            });
+            return;
         }
         if (req.method === 'POST') {
-            console.log('POST new');
-            res.end();
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end', async () => {
+                fs.readFile('almacen.txt', 'utf8', (err, data) => {
+                    if (err) {
+                      res.writeHead(500, { 'Content-Type': 'text/plain' });
+                      res.end('Error al leer el archivo');
+                      return;
+                    }
+                    const lines = data.split('\n');
+                    const id = parseInt(lines[lines.length - 1].split(',')[0])+1;
+                    const product = body.split(',');
+                    fs.appendFile('almacen.txt', `\n${id},${product.join(',')}`, (err) => {
+                        if (err) {
+                            res.writeHead(500, { 'Content-Type': 'text/plain' });
+                            res.end('Error al guardar el producto');
+                            return;
+                        }
+                        res.writeHead(200, { 'Content-Type': 'text/plain' });
+                        res.end('Producto guardado');
+                    });
+                });
+            });
         }
     }
 });
@@ -84,4 +179,5 @@ port = argv[2] || 3000;
 
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);
+    console.log(`http://localhost:${port}`);
 });
