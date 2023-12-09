@@ -32,7 +32,7 @@ function showDetailData(){
     salesList.forEach(function(sales, index){
         index = index + 1;
         html += "<tr>";
-        html += "<td>" + (index) + "</td>";
+        html += "<td><strong>" + (index) + "</strong></td>";
         html += "<td>" + sales.idProduct + "</td>";
         html += "<td>" + "nombre" + "</td>";
         html += "<td>" + "tipo" + "</td>";
@@ -124,5 +124,9 @@ function showDetailData(){
               document.getElementById("Update").style.display = "none";
           }
       }
+  }
+
+  function SendBack(){
+    window.location.href = "index.html";
   }
 

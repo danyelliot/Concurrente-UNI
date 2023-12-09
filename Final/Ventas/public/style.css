@@ -57,6 +57,10 @@ hr{
     background-color: transparent; 
     color: white;
 }
+#crudTableD td strong {
+    color: #fff; 
+}
+
 #crudTableD th:nth-child(8) {
     width: 15%; 
 }
@@ -64,6 +68,11 @@ hr{
     height: 10px;
 }
 #view{
+    background-color:#ca9a2c;
+    border: none;
+    color: #fff;
+}
+#Back{
     background-color:#ca9a2c;
     border: none;
     color: #fff;
