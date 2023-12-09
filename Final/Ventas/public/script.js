@@ -41,7 +41,7 @@ function validateSaleForm() {
           //html += 
           //    '<td><button class="btn btn-danger" onclick="deleteProduct('+index+')">Delete</button><button class="btn btn-warning m-2" onclick="updateProduct('+index+')">Edit</button></td>';
           html += '<td class="d-flex align-items-center justify-content-center flex-row flex-wrap">' +
-          '<button id="edit" class="btn btn-warning me-3" onclick="visualizeProduct(' + index + ')">Ver</button>' +
+          '<button id="view" class="btn btn-warning me-3" onclick="visualizeProduct(' + index + ')">Ver</button>' +
           '<button id="edit" class="btn btn-warning me-3" onclick="updateProduct(' + index + ')">Edit</button>' +
           '<button id="delete" class="btn btn-danger" onclick="deleteProduct(' + index + ')">Delete</button>' +
           '</td>';

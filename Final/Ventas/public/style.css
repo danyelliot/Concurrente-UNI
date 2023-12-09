@@ -1,18 +1,18 @@
 body{
-    background: #B0918D;
+    background: #92a2c3;
 }
 
 *{
     color: #463735;
 }
 #Update{
-    background-color: #4B4C6C; 
+    background-color: #675470; 
     color: #fff;
     border: none;
     display: none;
 }
 #Submit{
-    background-color: #675470; 
+    background-color:#306F83; 
     border: none;
     color: #fff;
 }
@@ -62,6 +62,11 @@ hr{
 }
 #crudTableD tr{
     height: 10px;
+}
+#view{
+    background-color:#ca9a2c;
+    border: none;
+    color: #fff;
 }
 
   
