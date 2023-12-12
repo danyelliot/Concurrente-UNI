@@ -19,9 +19,21 @@
 <body>
         
     <div class="container">
-        <h2 class="mt-5 mb-5">Bienvenido a lu Carrito de Compra</h2>
-        <div id= "welcomeMessage"class="mb-5">
-     
+        <h2 class="mt-5 mb-5">Bienvenido a Tu Carrito de Compra</h2>
+        <div class="row mb-5">
+            <div class="col-8" >
+                <div id="welcomeMessage"></div>
+            </div>
+            <div class="col-2 d-flex justify-content-end align-items-right">
+                <div class="generate">
+                    <button id="generate" class="btn btn-primary" onclick="generate()">Generar Factura</button>
+                </div>
+            </div>
+            <div class="col-2 d-flex justify-content-end align-items-right">
+                <div class="clean">
+                    <button id="clean" class="btn btn-danger" onclick="cleanCart()" >Limpiar Carrito</button>
+                </div>
+            </div>
         </div>
 
         <hr>

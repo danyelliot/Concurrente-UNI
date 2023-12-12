@@ -46,3 +46,23 @@ label{
 td{
     padding: 10px;
 }
+
+#welcomeMessage{
+    font-size: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+ 
+    height: 100%;
+}
+
+#generate{
+    background-color: #3A755F; 
+    border: none;
+    color: #fff;
+}
+#clean{
+    background-color: #9B2E31; 
+    border: none;
+    color: #fff;
+}

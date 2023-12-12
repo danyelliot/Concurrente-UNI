@@ -38,22 +38,21 @@ window.onload = function() {
     var ruc = urlParams.get('ruc');
     console.log(name);
     console.log(ruc);
-    var welcomeMessage = 'Bienvenido ' + name + ' con RUC ' + ruc;
+    var welcomeMessage = 'Bienvenido ' + name + ' identificado con RUC ' + ruc;
 
     var welcomeElement = document.getElementById('welcomeMessage');
 
     welcomeElement.textContent = welcomeMessage;
 }
+var productos = [
+    { id: 1, nombre: "Producto 1", precio: 10, cantidad: 0 },
+    { id: 2, nombre: "Producto 2", precio: 20, cantidad: 0 },
+    { id: 3, nombre: "Producto 3", precio: 30, cantidad: 0 }
+];
 
 
 document.addEventListener("DOMContentLoaded", function () {
     // Cargar productos desde el archivo de texto o una fuente de datos
-    var productos = [
-        { id: 1, nombre: "Producto 1", precio: 10, cantidad: 0 },
-        { id: 2, nombre: "Producto 2", precio: 20, cantidad: 0 },
-        { id: 3, nombre: "Producto 3", precio: 30, cantidad: 0 }
-    ];
-
     // Obtener el elemento del cuerpo de la tabla
     var tbody = document.getElementById("tbody");
 
@@ -90,3 +89,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 });
+
+window.cleanCart = function () {
+    
+    window.cleanCart = function () {
+        productos.forEach(function (producto) {
+            var cantidadElement = document.getElementById(`cantidad-${producto.id}`);
+            if (cantidadElement) {
+                cantidadElement.textContent = 0;
+                producto.cantidad = 0;
+            }
+        });
+    };
+};
