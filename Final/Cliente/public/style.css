@@ -1,0 +1,48 @@
+body {
+    color:white;
+    font-family: "Palatino", sans-serif;
+    background: #2d3e5e;
+}
+
+label{
+    padding: 18px;
+    font-size: 18px;
+}
+#login{
+    background-color: #D6E3FE;
+    border:none;
+    width: 100px;
+    color: #2d3e5e;
+    font-size: larger;
+    font-weight: bold;
+
+}
+
+#crudTable {
+    background-color: transparent;
+    color: white;
+}
+  
+#crudTable th, #crudTable td {
+    background-color: transparent; 
+    color: white;
+}
+
+#crudTable th:nth-child(odd){
+    width: 22%; 
+}
+
+#crudTable th:nth-child(2){
+    width: 38%; 
+}
+
+#min,#mas{
+    width: 20%;
+    font-size: larger;
+    background-color: transparent;; 
+    color: white;
+    border: none;
+}
+td{
+    padding: 10px;
+}
