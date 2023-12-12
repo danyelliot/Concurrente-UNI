@@ -15,7 +15,7 @@ function validateForm(){
         ruc.focus();
         return false;
     } else if(ruc.length < 11 && ruc.length > 0){
-        alert('Ingrese un ruc válido');
+        alert('Ingrese un ruc válido de 11 dígitos');
         ruc.focus();
         return false;
     }
